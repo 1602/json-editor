@@ -1,0 +1,20 @@
+{
+  "name": "automation-cloud-client",
+  "private": true,
+  "version": "5.4.2",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "elm-live src/Main.elm --output=elm.js --open",
+    "test": "elm-test tests/Tests.elm --watch",
+    "deploy": "gh-pages -d dist -a"
+  },
+  "devDependencies": {
+    "elm": "^0.18.0",
+    "elm-analyse": "^0.9.5",
+    "elm-hot-loader": "^0.5.4",
+    "gh-pages": "^0.12.0"
+  }
+}
