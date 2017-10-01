@@ -24,7 +24,7 @@ try {
     initValue = {};
 }
 
-const elm = Elm.Main.fullscreen(initValue);
+const elm = Elm.JsonEditor.fullscreen(initValue);
 
 elm.ports.select.subscribe(id => {
     setTimeout(() => {
@@ -37,14 +37,16 @@ elm.ports.select.subscribe(id => {
     }, 100);
 });
 
-elm.ports.download.subscribe(x => {
+elm.ports.download.subscribe(x => download(x));
+
+function download(value) {
     const a = document.createElement('a');
-    const blob = new Blob([JSON.stringify(x, null, '    ')], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(value, null, '    ')], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     a.setAttribute('href', url);
     a.download = 'JSON Schema';
     a.click();
-});
+}
 
 setTimeout(() => {
 
@@ -99,7 +101,14 @@ setTimeout(() => {
     function load(text) {
         const data = JSON.parse(text);
         localStorage.editMe = text;
-        elm.ports.editSchema.send(data);
+        elm.ports.editJson.send(data);
+    }
+
+    function cancel(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
     }
 
     function offsetTop(el, limit) {
@@ -111,11 +120,5 @@ setTimeout(() => {
     }
 }, 100);
 
-function cancel(e) {
-    if (e.preventDefault) {
-        e.preventDefault();
-    }
-    return false;
-}
     </script>
 </body>

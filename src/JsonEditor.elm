@@ -1,4 +1,4 @@
-port module Main exposing (main)
+port module JsonEditor exposing (main)
 
 import Navigation exposing (Location, programWithFlags)
 import Html exposing (Html)
@@ -67,7 +67,6 @@ type alias View =
 
 type alias Model =
     { schema : Schema
-    , value : Schema
     , jsonValue : JsonValue
     , error : Maybe String
     , valueUpdateErrors : Dict String String
@@ -87,13 +86,12 @@ type Msg
     | ValueChange String String
     | InsertValue Bool (List String) Int String
     | DeleteMe String
-    | EditSchema Value
+    | EditJson Value
     | DragOver Bool
     | SetEditPath String String String
     | SetEditPropertyName String (List String) Int
     | StopEditing
     | SetPropertyName String
-    | DownloadSchema
 
 
 main : Program Value Model Msg
@@ -110,11 +108,6 @@ init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     Model
         coreSchemaDraft6
-        -- value
-        (val
-            |> Decode.decodeValue Schema.decoder
-            |> Result.withDefault blankSchema
-        )
         -- jsonValue
         (val
             |> Decode.decodeValue jsonValueDecoder
@@ -176,7 +169,6 @@ updateValue model path newStuff =
                             Ok x ->
                                 { model
                                     | jsonValue = v
-                                    , value = x
                                     , valueUpdateErrors = model.valueUpdateErrors |> Dict.remove path
                                 }
 
@@ -268,13 +260,9 @@ update msg model =
         UrlChange l ->
             model ! []
 
-        EditSchema s ->
+        EditJson s ->
             { model
-                | value =
-                    s
-                        |> Decode.decodeValue Schema.decoder
-                        |> Result.withDefault model.value
-                , jsonValue =
+                | jsonValue =
                     s
                         |> Decode.decodeValue jsonValueDecoder
                         |> Result.withDefault (ObjectValue [])
@@ -317,11 +305,8 @@ update msg model =
             }
                 ! []
 
-        DownloadSchema ->
-            model ! [ model.value |> Schema.encode |> download ]
 
-
-port editSchema : (Value -> msg) -> Sub msg
+port editJson : (Value -> msg) -> Sub msg
 
 
 port dragOver : (Bool -> msg) -> Sub msg
@@ -336,7 +321,7 @@ port select : String -> Cmd msg
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ editSchema EditSchema
+        [ editJson EditJson
         , dragOver DragOver
         ]
 

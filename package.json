@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "elm-live src/Main.elm --output=elm.js --open",
+    "start": "elm-live src/JsonEditor.elm --output=elm.js --open",
     "test": "elm-test tests/Tests.elm --watch",
     "deploy": "gh-pages -d dist -a"
   },
