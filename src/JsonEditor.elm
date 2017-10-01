@@ -29,7 +29,6 @@ import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spa
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Markdown
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
-import Json.Encode as Encode
 import Json.Schema.Helpers
     exposing
         ( implyType
@@ -54,7 +53,7 @@ import Json.Schema.Definitions as Schema
         , Schemata(Schemata)
         , Type(AnyType, SingleType, NullableType, UnionType)
         , SingleType(IntegerType, NumberType, StringType, BooleanType)
-        , JsonValue(ObjectValue, ArrayValue, OtherValue, EmptyValue)
+        , JsonValue(ObjectValue, ArrayValue, BooleanValue, NullValue, NumericValue, StringValue, EmptyValue)
         , jsonValueDecoder
         , encodeJsonValue
         , blankSchema
@@ -533,8 +532,22 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     EmptyValue ->
                         edit ""
 
-                    OtherValue val ->
-                        val |> Encode.encode 2 |> edit
+                    StringValue str ->
+                        edit <| toString str
+
+                    NumericValue n ->
+                        edit <| toString n
+
+                    BooleanValue n ->
+                        edit <|
+                            (if n then
+                                "true"
+                             else
+                                "false"
+                            )
+
+                    NullValue ->
+                        edit "null"
     in
         controls 0 val path
 
