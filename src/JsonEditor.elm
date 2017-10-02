@@ -29,6 +29,7 @@ import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spa
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Markdown
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
+import Json.Encode as Encode
 import Json.Schema.Helpers
     exposing
         ( implyType
@@ -434,7 +435,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     :: (el PropertySeparator [ inlineStyle [ ( "display", "inline-block" ), ( "padding-right", "1ch" ) ] ] <| text ":")
                     :: controls (level + 1) prop pp
 
-        joinWithCommaAndWrapWith open close isEditableProp level path list =
+        joinWithCommaAndWrapWith jsp valId vvv open close isEditableProp level path list =
             list
                 |> List.map (itemRow isEditableProp level path)
                 |> List.intersperse [ text ",", Element.break ]
@@ -450,6 +451,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                   )
                                 , ( "display", "inline-block" )
                                 ]
+                            , onClick <| SetEditPath valId jsp <| Encode.encode 4 <| encodeJsonValue vvv
                             ]
                          <|
                             text open
@@ -474,80 +476,90 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
         controls level val path =
             let
-                edit val =
-                    let
-                        jsp =
-                            makeJsonPointer path
+                jsp =
+                    makeJsonPointer path
 
-                        valId =
-                            id ++ "/value/" ++ jsp
-                    in
-                        if jsp == editPath then
-                            [ editValue
-                                |> Element.inputText JsonEditor
-                                    [ onInput <| ValueChange jsp
-                                    , onBlur StopEditing
-                                    , Attributes.size <| String.length editValue + 1
-                                    , inlineStyle [ ( "display", "inline-block" ) ]
-                                    , Attributes.tabindex 0
-                                    , Attributes.id valId
-                                    ]
-                                |> Element.el None
-                                    [ inlineStyle [ ( "display", "inline-block" ) ] ]
-                                |> Element.below
-                                    [ valueUpdateErrors
-                                        |> Dict.get jsp
-                                        |> Maybe.map (text >> (el InlineError []))
-                                        |> Maybe.withDefault empty
-                                    ]
+                valId =
+                    id ++ "/value/" ++ jsp
+
+                isEditing =
+                    jsp == editPath
+
+                editForm editValue =
+                    editValue
+                        |> Element.inputText JsonEditor
+                            [ onInput <| ValueChange jsp
+                            , onBlur StopEditing
+                            , Attributes.size <| String.length editValue + 1
+                            , inlineStyle [ ( "display", "inline-block" ) ]
+                            , Attributes.tabindex 0
+                            , Attributes.id valId
                             ]
-                        else
-                            [ val
-                                |> (\v ->
-                                        if v == "" then
-                                            "∅"
-                                        else
-                                            v
-                                   )
-                                |> text
-                                |> Element.el PropertyValue
-                                    [ inlineStyle [ ( "display", "inline-block" ) ]
-                                      --, Attributes.contenteditable False
-                                    , onFocus <| SetEditPath valId jsp val
-                                    , Attributes.tabindex 0
-                                    ]
+                        |> Element.el None
+                            [ inlineStyle [ ( "display", "inline-block" ) ] ]
+                        |> Element.below
+                            [ valueUpdateErrors
+                                |> Dict.get jsp
+                                |> Maybe.map (text >> (el InlineError []))
+                                |> Maybe.withDefault empty
                             ]
+
+                edit val =
+                    if isEditing then
+                        editValue |> editForm
+                    else
+                        val
+                            |> (\v ->
+                                    if v == "" then
+                                        "∅"
+                                    else
+                                        v
+                               )
+                            |> text
+                            |> Element.el PropertyValue
+                                [ inlineStyle [ ( "display", "inline-block" ) ]
+                                  --, Attributes.contenteditable False
+                                , onFocus <| SetEditPath valId jsp val
+                                , Attributes.tabindex 0
+                                ]
             in
                 case val of
                     ArrayValue list ->
                         list
                             |> List.indexedMap (\index item -> ( index, "", item ))
-                            |> joinWithCommaAndWrapWith "[" "]" False level path
+                            |> joinWithCommaAndWrapWith jsp valId val "[" "]" False level path
 
                     ObjectValue obj ->
-                        obj
-                            |> List.indexedMap (\index ( key, val ) -> ( index, key, val ))
-                            |> joinWithCommaAndWrapWith "{" "}" True level path
+                        if isEditing then
+                            [ val
+                                |> encodeJsonValue
+                                |> Encode.encode 4
+                                |> editForm
+                                ]
+                        else
+                            obj
+                                |> List.indexedMap (\index ( key, val ) -> ( index, key, val ))
+                                |> joinWithCommaAndWrapWith jsp valId val "{" "}" True level path
 
                     EmptyValue ->
-                        edit ""
+                        [ edit "" ]
 
                     StringValue str ->
-                        edit <| toString str
+                        [ edit <| toString str ]
 
                     NumericValue n ->
-                        edit <| toString n
+                        [ edit <| toString n ]
 
                     BooleanValue n ->
-                        edit <|
+                        [ edit <|
                             (if n then
                                 "true"
                              else
                                 "false"
-                            )
+                            ) ]
 
                     NullValue ->
-                        edit "null"
+                        [ edit "null" ]
     in
         controls 0 val path
 
