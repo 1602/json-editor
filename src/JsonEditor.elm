@@ -485,6 +485,30 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 isEditing =
                     jsp == editPath
 
+                multilineEdit editValue =
+                    editValue
+                        |> Element.textArea JsonEditor
+                            [ onInput <| ValueChange jsp
+                            , onBlur StopEditing
+                            , Attributes.width (fill 1)
+                            , Attributes.rows <| ((+) 1) <| List.length <| String.split "\n" editValue
+                            , inlineStyle [ ( "display", "inline-block" ) ]
+                            , Attributes.tabindex 0
+                            , Attributes.id valId
+                            ]
+                        |> Element.el None
+                            [ inlineStyle
+                                [ ( "display", "block" )
+                                , ( "margin-left", (level + 1 |> (*) 2 |> toString) ++ "ch" )
+                                ]
+                            ]
+                        |> Element.below
+                            [ valueUpdateErrors
+                                |> Dict.get jsp
+                                |> Maybe.map (text >> (el InlineError []))
+                                |> Maybe.withDefault empty
+                            ]
+
                 editForm editValue =
                     editValue
                         |> Element.inputText JsonEditor
@@ -525,17 +549,16 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
             in
                 case val of
                     ArrayValue list ->
-                        list
-                            |> List.indexedMap (\index item -> ( index, "", item ))
-                            |> joinWithCommaAndWrapWith jsp valId val "[" "]" False level path
+                        if isEditing then
+                            [ editValue |> multilineEdit ]
+                        else
+                            list
+                                |> List.indexedMap (\index item -> ( index, "", item ))
+                                |> joinWithCommaAndWrapWith jsp valId val "[" "]" False level path
 
                     ObjectValue obj ->
                         if isEditing then
-                            [ val
-                                |> encodeJsonValue
-                                |> Encode.encode 4
-                                |> editForm
-                                ]
+                            [ editValue |> multilineEdit ]
                         else
                             obj
                                 |> List.indexedMap (\index ( key, val ) -> ( index, key, val ))
@@ -556,7 +579,8 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 "true"
                              else
                                 "false"
-                            ) ]
+                            )
+                        ]
 
                     NullValue ->
                         [ edit "null" ]
