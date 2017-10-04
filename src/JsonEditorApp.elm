@@ -1,4 +1,4 @@
-port module JsonEditor exposing (main)
+port module JsonEditorApp exposing (main)
 
 import Navigation exposing (Location, programWithFlags)
 import Html exposing (Html)
@@ -490,8 +490,8 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         |> Element.textArea JsonEditor
                             [ onInput <| ValueChange jsp
                             , onBlur StopEditing
-                            , Attributes.width (fill 1)
-                            , Attributes.rows <| ((+) 1) <| List.length <| String.split "\n" editValue
+                            , Attributes.width <| fill 1
+                            , Attributes.rows <| (+) 1 <| List.length <| String.split "\n" editValue
                             , inlineStyle [ ( "display", "inline-block" ) ]
                             , Attributes.tabindex 0
                             , Attributes.id valId
