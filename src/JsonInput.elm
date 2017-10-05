@@ -1,5 +1,6 @@
 module JsonInput exposing (Model, update, view, init, ExternalMsg(Select), Msg(SetEditableValue))
 
+import Html exposing (Html)
 import Dict exposing (Dict)
 import StyleSheet
     exposing
@@ -284,30 +285,31 @@ update msg model =
             )
 
 
-view : String -> Model -> View
+view : String -> Model -> Html Msg
 view id model =
-    row Main
-        [ height <| fill 1
-        , width <| fill 1
-        ]
-    <|
-        case model.jsonValue of
-            ObjectValue [] ->
-                [ row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop schema file (or link to a schema) here." ]
-                ]
+    Element.layout stylesheet <|
+        row Main
+            [ height <| fill 1
+            , width <| fill 1
+            ]
+        <|
+            case model.jsonValue of
+                ObjectValue [] ->
+                    [ row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop schema file (or link to a schema) here." ]
+                    ]
 
-            _ ->
-                [ form
-                    id
-                    model.valueUpdateErrors
-                    model.editPropertyName
-                    model.editPath
-                    model.editValue
-                    model.jsonValue
-                    []
-                    |> Element.textLayout SourceCode
+                _ ->
+                    [ form
+                        id
+                        model.valueUpdateErrors
+                        model.editPropertyName
+                        model.editPath
+                        model.editValue
+                        model.jsonValue
                         []
-                ]
+                        |> Element.textLayout SourceCode
+                            []
+                    ]
 
 
 form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
