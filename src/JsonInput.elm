@@ -93,10 +93,10 @@ type
     | SetPropertyName String
 
 
-init : Value -> Model
-init val =
+init : Schema -> Value -> Model
+init schema val =
     Model
-        coreSchemaDraft6
+        schema
         -- jsonValue
         (val
             |> Decode.decodeValue jsonValueDecoder
