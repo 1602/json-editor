@@ -43,7 +43,10 @@ import Json.Schema.Helpers
         , setPropertyNameInJsonValue
         )
 import Validation
-import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
+
+
+--import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
+
 import Json.Schema.Definitions as Schema
     exposing
         ( Schema(BooleanSchema, ObjectSchema)
