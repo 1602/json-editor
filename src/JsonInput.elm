@@ -1,4 +1,4 @@
-module JsonInput exposing (Model, update, view, init, ExternalMsg(Select), Msg(SetEditableValue))
+module JsonInput exposing (Model, update, view, init, getValue, ExternalMsg(Select), Msg(SetEditableValue))
 
 import Html exposing (Html)
 import Dict exposing (Dict)
@@ -43,10 +43,6 @@ import Json.Schema.Helpers
         , setPropertyNameInJsonValue
         )
 import Validation
-
-
---import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
-
 import Json.Schema.Definitions as Schema
     exposing
         ( Schema(BooleanSchema, ObjectSchema)
@@ -128,6 +124,12 @@ makeValidSchema jsonValue schema =
             |> Validation.validate val
             |> Result.map (\_ -> val)
             |> Result.andThen (Decode.decodeValue Schema.decoder)
+
+
+getValue : Model -> Value
+getValue model =
+    model.jsonValue
+        |> encodeJsonValue
 
 
 updateValue : Model -> String -> Result String JsonValue -> Model
@@ -296,23 +298,17 @@ view id model =
             , width <| fill 1
             ]
         <|
-            case model.jsonValue of
-                ObjectValue [] ->
-                    [ row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop schema file (or link to a schema) here." ]
-                    ]
-
-                _ ->
-                    [ form
-                        id
-                        model.valueUpdateErrors
-                        model.editPropertyName
-                        model.editPath
-                        model.editValue
-                        model.jsonValue
-                        []
-                        |> Element.textLayout SourceCode
-                            []
-                    ]
+            [ form
+                id
+                model.valueUpdateErrors
+                model.editPropertyName
+                model.editPath
+                model.editValue
+                model.jsonValue
+                []
+                |> Element.textLayout SourceCode
+                    []
+            ]
 
 
 form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View

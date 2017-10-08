@@ -46,7 +46,6 @@ stylesheet =
             , Color.background Color.white
             , Style.prop "font-family" "helvetica, arial, sans-serif"
             , Font.size 14
-            , Style.paddingHint 10
             , Font.lineHeight 1.5
               -- line height, given as a ratio of current font size.
             ]

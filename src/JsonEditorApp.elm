@@ -16,6 +16,7 @@ import StyleSheet
 import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spacing, padding, height, minWidth, width, yScrollbar, fill, px, percent)
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
+import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
 import Json.Schema.Definitions as Schema
     exposing
         ( JsonValue(ObjectValue)
@@ -55,7 +56,7 @@ init val location =
         -- dragOver
         False
         -- jsonInput
-        (JsonInput.init val)
+        (JsonInput.init coreSchemaDraft6 val)
         ! []
 
 
@@ -66,11 +67,7 @@ update msg model =
             model ! []
 
         EditJson s ->
-            let
-                ( jsonInput, _ ) =
-                    JsonInput.update (SetEditableValue s) model.jsonInput
-            in
-                { model | jsonInput = jsonInput } ! []
+            { model | jsonInput = JsonInput.init coreSchemaDraft6 s } ! []
 
         DragOver isOver ->
             { model | dragOver = isOver } ! []
@@ -131,6 +128,7 @@ view model =
                     _ ->
                         [ model.jsonInput
                             |> JsonInput.view "id"
+                            |> Element.html
                             |> Element.map JsonInputMsg
                           --|> Element.textLayout SourceCode []
                         ]
