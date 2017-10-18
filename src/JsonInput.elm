@@ -1,4 +1,4 @@
-module JsonInput exposing (Model, update, view, init, getValue, ExternalMsg(Select), Msg(SetEditableValue))
+module JsonInput exposing (Model, update, view, init, getValue, ExternalMsg(Select, OnInput), Msg(SetEditableValue))
 
 import Html exposing (Html)
 import Dict exposing (Dict)
@@ -75,6 +75,7 @@ type alias Model =
 type ExternalMsg
     = NoOp
     | Select String
+    | OnInput
 
 
 type
@@ -132,7 +133,7 @@ getValue model =
         |> encodeJsonValue
 
 
-updateValue : Model -> String -> Result String JsonValue -> Model
+updateValue : Model -> String -> Result String JsonValue -> ( Model, ExternalMsg )
 updateValue model path newStuff =
     let
         addError message =
@@ -148,19 +149,23 @@ updateValue model path newStuff =
                     Ok v ->
                         case makeValidSchema v model.schema of
                             Ok x ->
-                                { model
+                                ( { model
                                     | jsonValue = v
                                     , valueUpdateErrors = model.valueUpdateErrors |> Dict.remove path
-                                }
+                                  }
+                                , OnInput
+                                )
 
                             Err message ->
-                                { model
+                                ( { model
                                     | jsonValue = v
                                     , valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message
-                                }
+                                  }
+                                , OnInput
+                                )
 
                     Err s ->
-                        addError s
+                        ( addError s, NoOp )
 
 
 deletePath : Model -> String -> Model
@@ -200,9 +205,9 @@ update msg model =
                updateValue model path (bool |> Encode.bool |> OtherValue |> Ok) ! []
         -}
         ValueChange path str ->
-            ( updateValue { model | editValue = str, editPath = path } path (decodeString jsonValueDecoder str)
-            , NoOp
-            )
+            str
+                |> decodeString jsonValueDecoder
+                |> updateValue { model | editValue = str, editPath = path } path
 
         StopEditing ->
             ( { model
@@ -228,15 +233,18 @@ update msg model =
                         ( newJsonPointer, "", formId ++ "/prop/" ++ newJsonPointer ++ "/" )
                     else
                         ( "", newJsonPointer ++ "/" ++ (toString index), formId ++ "/value/" ++ newJsonPointer ++ "/" ++ (toString index) )
+
+                ( updatedModel, _ ) =
+                    updateValue
+                        { model
+                            | editPath = editPath
+                            , editPropertyName = ( editProp, index )
+                            , editValue = ""
+                        }
+                        (newJsonPointer ++ "/")
+                        (Ok <| EmptyValue)
             in
-                ( updateValue
-                    { model
-                        | editPath = editPath
-                        , editPropertyName = ( editProp, index )
-                        , editValue = ""
-                    }
-                    (newJsonPointer ++ "/")
-                    (Ok <| EmptyValue)
+                ( updatedModel
                 , Select id
                 )
 
@@ -293,7 +301,7 @@ update msg model =
 view : String -> Model -> Html Msg
 view id model =
     Element.layout stylesheet <|
-        row Main
+        row None
             [ height <| fill 1
             , width <| fill 1
             ]
