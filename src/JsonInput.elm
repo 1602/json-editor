@@ -301,12 +301,12 @@ update msg model =
 view : String -> Model -> Html Msg
 view id model =
     Element.layout stylesheet <|
-        row None
+        el SourceCode
             [ height <| fill 1
             , width <| fill 1
             ]
         <|
-            [ form
+            form
                 id
                 model.valueUpdateErrors
                 model.editPropertyName
@@ -314,13 +314,73 @@ view id model =
                 model.editValue
                 model.jsonValue
                 []
-                |> Element.textLayout SourceCode
-                    []
-            ]
 
 
-form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
+form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> View
 form id valueUpdateErrors editPropertyName editPath editValue val path =
+    let
+        walkValue v level =
+            case v of
+                ObjectValue props ->
+                    props
+                        |> List.map
+                            (\( name, prop ) ->
+                                [ [ text name
+                                  , ": " |> text
+                                  , case prop of
+                                        StringValue s ->
+                                            s |> toString |> flip (++) "," |> text
+
+                                        NumericValue s ->
+                                            s |> toString |> flip (++) "," |> text
+
+                                        BooleanValue s ->
+                                            s |> toString |> flip (++) "," |> text
+
+                                        ObjectValue _ ->
+                                            "{" |> text
+
+                                        -- walkValue prop
+                                        ArrayValue _ ->
+                                            "[" |> text
+
+                                        _ ->
+                                            empty
+                                  ]
+                                    |> row None []
+                                , case prop of
+                                    ObjectValue _ ->
+                                        walkValue prop <| level + 1
+
+                                    ArrayValue _ ->
+                                        walkValue prop <| level + 1
+
+                                    _ ->
+                                        empty
+                                , case prop of
+                                    ObjectValue _ ->
+                                        "}," |> text
+
+                                    ArrayValue _ ->
+                                        "]," |> text
+
+                                    _ ->
+                                        empty
+                                ]
+                            )
+                        |> List.concat
+                        --|> (\x -> text "{" :: x ++ [ text "}" ])
+                        |>
+                            column None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
+
+                _ ->
+                    empty
+    in
+        walkValue val 0
+
+
+form_ : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
+form_ id valueUpdateErrors editPropertyName editPath editValue val path =
     let
         offset level n =
             el None
@@ -586,7 +646,7 @@ source id model s subpath =
                 |> Result.withDefault (ObjectValue [])
 
         editForm val =
-            Element.textLayout None
+            el None
                 []
                 (subpath
                     |> parseJsonPointer
