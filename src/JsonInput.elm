@@ -17,12 +17,29 @@ import StyleSheet
             , ItemIndex
             , PropertyValue
             , PropertySeparator
+            , DataRowHint
             )
         , Variations(Active)
         , stylesheet
         )
 import Element.Events exposing (onClick, onMouseDown, onInput, onBlur, onFocus, onDoubleClick)
-import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spacing, padding, height, minWidth, width, yScrollbar, fill, px, percent)
+import Element.Attributes as Attributes
+    exposing
+        ( center
+        , vary
+        , inlineStyle
+        , spacing
+        , padding
+        , height
+        , minWidth
+        , width
+        , yScrollbar
+        , fill
+        , px
+        , percent
+        , alignRight
+        , moveLeft
+        )
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Markdown
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
@@ -325,8 +342,19 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     props
                         |> List.map
                             (\( name, prop ) ->
-                                [ [ text name
-                                  , ": " |> text
+                                [ [ Element.checkbox True
+                                        None
+                                        [ moveLeft 2
+                                        , inlineStyle [ ( "width", "4ch" ), ( "padding-left", "2ch" ) ]
+                                        , Attributes.class "delete-property"
+                                        ]
+                                    <|
+                                        text ""
+                                  , text name
+                                        |> el PropertyName []
+                                  , ": "
+                                        |> text
+                                        |> el PropertySeparator []
                                   , case prop of
                                         StringValue s ->
                                             s |> toString |> flip (++) "," |> text
@@ -346,6 +374,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                                         _ ->
                                             empty
+                                  , el DataRowHint [ width <| fill 1 ] (text "")
                                   ]
                                     |> row None []
                                 , case prop of
@@ -359,10 +388,14 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                         empty
                                 , case prop of
                                     ObjectValue _ ->
-                                        "}," |> text
+                                        "},"
+                                            |> text
+                                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
 
                                     ArrayValue _ ->
-                                        "]," |> text
+                                        "],"
+                                            |> text
+                                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
 
                                     _ ->
                                         empty
@@ -371,7 +404,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         |> List.concat
                         --|> (\x -> text "{" :: x ++ [ text "}" ])
                         |>
-                            column None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
+                            column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
 
                 _ ->
                     empty

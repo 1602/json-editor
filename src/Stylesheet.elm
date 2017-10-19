@@ -1,6 +1,6 @@
 module StyleSheet exposing (stylesheet, Styles(..), Variations(..))
 
-import Style exposing (style, StyleSheet)
+import Style exposing (style, StyleSheet, hover)
 import Color
 import Style.Color as Color
 import Style.Font as Font
@@ -25,6 +25,7 @@ type Styles
     | JsonEditor
     | SourceCode
     | InlineError
+    | DataRowHint
 
 
 type Variations
@@ -38,7 +39,8 @@ fancyBlue =
 
 stylesheet : StyleSheet Styles Variations
 stylesheet =
-    Style.styleSheetWith [ Style.unguarded ]
+    Style.styleSheetWith []
+        -- Style.unguarded ]
         [ style None []
           -- It's handy to have a blank style
         , style Main
@@ -48,6 +50,12 @@ stylesheet =
             , Font.size 14
             , Font.lineHeight 1.5
               -- line height, given as a ratio of current font size.
+            ]
+        , style DataRowHint
+            [ Style.cursor "copy"
+            , hover
+                [ Color.background <| Color.rgba 0 0 0 0.03
+                ]
             ]
         , style Bordered
             [ Border.all 1
@@ -85,6 +93,7 @@ stylesheet =
             ]
         , style PropertySeparator
             [ Color.text <| Color.rgb 120 120 120
+            , Style.prop "width" "2ch"
               --, Style.paddingRightHint 5
             , Style.prop "outline" "none"
             ]
