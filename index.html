@@ -3,21 +3,19 @@
     <meta charset="utf-8" />
     <title>JSON Editor</title>
 <style>
-.properties-block > div > .delete-property {
+.item-row > .delete-property {
     visibility: hidden;
 }
 
-.properties-block:hover > div > .delete-property {
+.item-row:hover > .delete-property {
     visibility: visible;
 }
 
-.deletable .delete-me {
-    visibility: hidden;
-}
-.deletable:hover .delete-me {
+/*
+.item-row:hover ~ .item-row > .delete-property {
     visibility: visible;
-    cursor: pointer;
 }
+*/
 </style>
 </head>
 

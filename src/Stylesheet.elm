@@ -52,7 +52,7 @@ stylesheet =
               -- line height, given as a ratio of current font size.
             ]
         , style DataRowHint
-            [ Style.cursor "copy"
+            [ Style.cursor "text"
             , hover
                 [ Color.background <| Color.rgba 0 0 0 0.03
                 ]
