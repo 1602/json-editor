@@ -336,12 +336,58 @@ view id model =
 form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> View
 form id valueUpdateErrors editPropertyName editPath editValue val path =
     let
-        walkValue v level =
+        ( editPropPath, editIndex ) =
+            editPropertyName
+
+        propName name index path =
+            let
+                hostPointer =
+                    makeJsonPointer path
+
+                isEditableProp =
+                    True
+
+                pp =
+                    path
+                        ++ [ if isEditableProp then
+                                name
+                             else
+                                index |> toString
+                           ]
+
+                ( editPropPath, editIndex ) =
+                    editPropertyName
+
+                newPointer =
+                    makeJsonPointer pp
+
+                propId =
+                    id ++ "/prop/" ++ newPointer
+            in
+                if hostPointer == editPropPath && index == editIndex then
+                    name
+                        |> Element.inputText JsonEditor
+                            [ onInput <| SetPropertyName
+                            , Attributes.size <| String.length name + 1
+                            , onBlur <| StopEditing
+                            , Attributes.tabindex 0
+                            , Attributes.id propId
+                            ]
+                        |> el None []
+                else
+                    name
+                        |> text
+                        |> el PropertyName
+                            [ Attributes.tabindex 0
+                            , onFocus <| SetEditPropertyName propId path index
+                            ]
+
+        walkValue v path level =
             case v of
                 ObjectValue props ->
                     props
-                        |> List.map
-                            (\( name, prop ) ->
+                        |> List.indexedMap
+                            (\index ( name, prop ) ->
                                 [ [ Element.checkbox True
                                         None
                                         [ moveLeft 2
@@ -350,8 +396,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                         ]
                                     <|
                                         text ""
-                                  , text name
-                                        |> el PropertyName []
+                                  , propName name index path
                                   , ": "
                                         |> text
                                         |> el PropertySeparator []
@@ -379,10 +424,10 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                     |> row None []
                                 , case prop of
                                     ObjectValue _ ->
-                                        walkValue prop <| level + 1
+                                        walkValue prop (path ++ [ name ]) <| level + 1
 
                                     ArrayValue _ ->
-                                        walkValue prop <| level + 1
+                                        walkValue prop (path ++ [ name ]) <| level + 1
 
                                     _ ->
                                         empty
@@ -409,7 +454,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 _ ->
                     empty
     in
-        walkValue val 0
+        walkValue val [] 0
 
 
 form_ : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
