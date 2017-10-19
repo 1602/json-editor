@@ -67,7 +67,7 @@ import Json.Schema.Definitions as Schema
         , Schemata(Schemata)
         , Type(AnyType, SingleType, NullableType, UnionType)
         , SingleType(IntegerType, NumberType, StringType, BooleanType)
-        , JsonValue(ObjectValue, ArrayValue, BooleanValue, NullValue, NumericValue, StringValue, EmptyValue)
+        , JsonValue(ObjectValue, ArrayValue, BooleanValue, NullValue, NumericValue, StringValue)
         , jsonValueDecoder
         , encodeJsonValue
         , blankSchema
@@ -81,12 +81,24 @@ type alias View =
 type alias Model =
     { schema : Schema
     , jsonValue : JsonValue
+    , editableJsonValue : EditableJsonValue
     , error : Maybe String
     , valueUpdateErrors : Dict String String
     , editPath : String
     , editValue : String
     , editPropertyName : ( String, Int )
     }
+
+
+type EditableJsonValue
+    = EmptyValue
+    | DeletedValue JsonValue
+    | StringEValue String
+    | NumericEValue Float
+    | BoolEValue Bool
+    | ObjectEValue (List ( String, EditableJsonValue ))
+    | ArrayEValue (List EditableJsonValue)
+    | NullEValue
 
 
 type ExternalMsg
@@ -110,25 +122,116 @@ type
     | SetPropertyName String
 
 
+makeEditableJsonValue : JsonValue -> EditableJsonValue
+makeEditableJsonValue jsonValue =
+    case jsonValue of
+        StringValue s ->
+            StringEValue s
+
+        NumericValue n ->
+            NumericEValue n
+
+        BooleanValue b ->
+            BoolEValue b
+
+        NullValue ->
+            NullEValue
+
+        ObjectValue obj ->
+            obj
+                |> List.map (\( key, val ) -> ( key, val |> makeEditableJsonValue ))
+                |> ObjectEValue
+
+        ArrayValue list ->
+            list
+                |> List.map makeEditableJsonValue
+                |> ArrayEValue
+
+
+makeJsonValue : EditableJsonValue -> JsonValue
+makeJsonValue editableJsonValue =
+    case editableJsonValue of
+        StringEValue s ->
+            StringValue s
+
+        NumericEValue n ->
+            NumericValue n
+
+        BoolEValue b ->
+            BooleanValue b
+
+        NullEValue ->
+            NullValue
+
+        EmptyValue ->
+            NullValue
+
+        DeletedValue _ ->
+            NullValue
+
+        ObjectEValue obj ->
+            obj
+                |> List.filter
+                    (\( key, val ) ->
+                        case val of
+                            EmptyValue ->
+                                False
+
+                            DeletedValue _ ->
+                                False
+
+                            _ ->
+                                True
+                    )
+                |> List.map (\( key, val ) -> ( key, val |> makeJsonValue ))
+                |> ObjectValue
+
+        ArrayEValue list ->
+            list
+                |> List.filter
+                    (\val ->
+                        case val of
+                            EmptyValue ->
+                                False
+
+                            DeletedValue _ ->
+                                False
+
+                            _ ->
+                                True
+                    )
+                |> List.map makeJsonValue
+                |> ArrayValue
+
+
 init : Schema -> Value -> Model
 init schema val =
-    Model
-        schema
-        -- jsonValue
-        (val
-            |> Decode.decodeValue jsonValueDecoder
-            |> Result.withDefault (ObjectValue [])
-        )
-        -- error
-        Nothing
-        -- valueUpdateErrors
-        Dict.empty
-        -- editPath
-        ""
-        -- editValue
-        "null"
-        -- editPropertyName
-        ( "", 0 )
+    let
+        jsonValue =
+            val
+                |> Decode.decodeValue jsonValueDecoder
+                |> Result.withDefault (ObjectValue [])
+
+        editableJsonValue =
+            jsonValue
+                |> makeEditableJsonValue
+    in
+        Model
+            schema
+            -- jsonValue
+            jsonValue
+            -- editableJsonValue
+            editableJsonValue
+            -- error
+            Nothing
+            -- valueUpdateErrors
+            Dict.empty
+            -- editPath
+            ""
+            -- editValue
+            "null"
+            -- editPropertyName
+            ( "", 0 )
 
 
 makeValidSchema : JsonValue -> Schema -> Result String Schema
@@ -150,7 +253,7 @@ getValue model =
         |> encodeJsonValue
 
 
-updateValue : Model -> String -> Result String JsonValue -> ( Model, ExternalMsg )
+updateValue : Model -> String -> Result String EditableJsonValue -> ( Model, ExternalMsg )
 updateValue model path newStuff =
     let
         addError message =
@@ -159,7 +262,9 @@ updateValue model path newStuff =
         newStuff
             |> Result.andThen
                 (\val ->
-                    setJsonValue model.jsonValue path val
+                    val
+                        |> makeJsonValue
+                        |> setJsonValue model.jsonValue path
                 )
             |> \res ->
                 case res of
@@ -224,6 +329,7 @@ update msg model =
         ValueChange path str ->
             str
                 |> decodeString jsonValueDecoder
+                |> Result.map makeEditableJsonValue
                 |> updateValue { model | editValue = str, editPath = path } path
 
         StopEditing ->
@@ -247,9 +353,15 @@ update msg model =
 
                 ( editProp, editPath, id ) =
                     if hasKey then
-                        ( newJsonPointer, "", formId ++ "/prop/" ++ newJsonPointer ++ "/" )
+                        ( newJsonPointer
+                        , ""
+                        , formId ++ "/prop/" ++ newJsonPointer ++ "/"
+                        )
                     else
-                        ( "", newJsonPointer ++ "/" ++ (toString index), formId ++ "/value/" ++ newJsonPointer ++ "/" ++ (toString index) )
+                        ( ""
+                        , newJsonPointer ++ "/" ++ (toString index)
+                        , formId ++ "/value/" ++ newJsonPointer ++ "/" ++ (toString index)
+                        )
 
                 ( updatedModel, _ ) =
                     updateValue
@@ -329,11 +441,11 @@ view id model =
                 model.editPropertyName
                 model.editPath
                 model.editValue
-                model.jsonValue
+                model.editableJsonValue
                 []
 
 
-form : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> View
+form : String -> Dict String String -> ( String, Int ) -> String -> String -> EditableJsonValue -> List String -> View
 form id valueUpdateErrors editPropertyName editPath editValue val path =
     let
         ( editPropPath, editIndex ) =
@@ -382,79 +494,87 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             , onFocus <| SetEditPropertyName propId path index
                             ]
 
-        walkValue v path level =
+        itemRow isEditableProp index name prop =
+            [ [ Element.checkbox True
+                    None
+                    [ moveLeft 2
+                    , inlineStyle [ ( "width", "4ch" ), ( "padding-left", "2ch" ) ]
+                    , Attributes.class "delete-property"
+                    ]
+                <|
+                    text ""
+              , propName name index path
+              , ": "
+                    |> text
+                    |> el PropertySeparator []
+              , case prop of
+                    StringEValue s ->
+                        s |> toString |> flip (++) "," |> text
+
+                    NumericEValue s ->
+                        s |> toString |> flip (++) "," |> text
+
+                    BoolEValue s ->
+                        s |> toString |> flip (++) "," |> text
+
+                    ObjectEValue _ ->
+                        "{" |> text
+
+                    -- walkValue prop
+                    ArrayEValue _ ->
+                        "[" |> text
+
+                    _ ->
+                        empty
+              , el DataRowHint
+                    [ width <| fill 1
+                    , onClick <| InsertValue isEditableProp path index id
+                    ]
+                    (text "")
+              ]
+                |> row None []
+            , case prop of
+                ObjectEValue _ ->
+                    walkValue prop (path ++ [ name ])
+
+                ArrayEValue _ ->
+                    walkValue prop (path ++ [ name ])
+
+                _ ->
+                    empty
+            , case prop of
+                ObjectEValue _ ->
+                    "},"
+                        |> text
+                        |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
+
+                ArrayEValue _ ->
+                    "],"
+                        |> text
+                        |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
+
+                _ ->
+                    empty
+            ]
+
+        walkValue v path =
             case v of
-                ObjectValue props ->
+                ObjectEValue props ->
                     props
-                        |> List.indexedMap
-                            (\index ( name, prop ) ->
-                                [ [ Element.checkbox True
-                                        None
-                                        [ moveLeft 2
-                                        , inlineStyle [ ( "width", "4ch" ), ( "padding-left", "2ch" ) ]
-                                        , Attributes.class "delete-property"
-                                        ]
-                                    <|
-                                        text ""
-                                  , propName name index path
-                                  , ": "
-                                        |> text
-                                        |> el PropertySeparator []
-                                  , case prop of
-                                        StringValue s ->
-                                            s |> toString |> flip (++) "," |> text
-
-                                        NumericValue s ->
-                                            s |> toString |> flip (++) "," |> text
-
-                                        BooleanValue s ->
-                                            s |> toString |> flip (++) "," |> text
-
-                                        ObjectValue _ ->
-                                            "{" |> text
-
-                                        -- walkValue prop
-                                        ArrayValue _ ->
-                                            "[" |> text
-
-                                        _ ->
-                                            empty
-                                  , el DataRowHint [ width <| fill 1 ] (text "")
-                                  ]
-                                    |> row None []
-                                , case prop of
-                                    ObjectValue _ ->
-                                        walkValue prop (path ++ [ name ]) <| level + 1
-
-                                    ArrayValue _ ->
-                                        walkValue prop (path ++ [ name ]) <| level + 1
-
-                                    _ ->
-                                        empty
-                                , case prop of
-                                    ObjectValue _ ->
-                                        "},"
-                                            |> text
-                                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
-
-                                    ArrayValue _ ->
-                                        "],"
-                                            |> text
-                                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
-
-                                    _ ->
-                                        empty
-                                ]
-                            )
+                        |> List.indexedMap (\index ( name, prop ) -> itemRow True index name prop)
                         |> List.concat
-                        --|> (\x -> text "{" :: x ++ [ text "}" ])
-                        |>
-                            column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
+                        |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
+
+                ArrayEValue list ->
+                    list
+                        |> List.indexedMap (\index prop -> itemRow True index (index |> toString) prop)
+                        |> List.concat
+                        |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
 
                 _ ->
                     empty
     in
-        walkValue val [] 0
+        walkValue val []
 
 
 form_ : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
@@ -664,9 +784,6 @@ form_ id valueUpdateErrors editPropertyName editPath editValue val path =
                                 |> List.indexedMap (\index ( key, val ) -> ( index, key, val ))
                                 |> joinWithCommaAndWrapWith jsp valId val "{" "}" True level path
 
-                    EmptyValue ->
-                        [ edit "" ]
-
                     StringValue str ->
                         [ edit <| toString str ]
 
@@ -710,37 +827,6 @@ getFields val subpath =
 col10 : List View -> View
 col10 =
     column None [ spacing 10, padding 10 ]
-
-
-source : String -> Model -> Schema -> String -> View
-source id model s subpath =
-    let
-        isEditMode =
-            True
-
-        val =
-            model.jsonValue
-                |> getJsonValue (parseJsonPointer subpath)
-                |> Result.withDefault (ObjectValue [])
-
-        editForm val =
-            el None
-                []
-                (subpath
-                    |> parseJsonPointer
-                    |> form
-                        id
-                        model.valueUpdateErrors
-                        model.editPropertyName
-                        model.editPath
-                        model.editValue
-                        val
-                )
-
-        displaySchemaNode =
-            editForm
-    in
-        displaySchemaNode val
 
 
 takeHalfWidth : View -> View
