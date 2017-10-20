@@ -93,9 +93,10 @@ stylesheet =
             ]
         , style PropertySeparator
             [ Color.text <| Color.rgb 120 120 120
-            , Style.prop "width" "2ch"
+              --, Style.prop "width" "2ch"
               --, Style.paddingRightHint 5
             , Style.prop "outline" "none"
+            , Style.prop "white-space" "pre"
             ]
         , style PropertyValue
             [ Color.text Color.darkCharcoal

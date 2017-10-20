@@ -371,7 +371,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
         ( editPropPath, editIndex ) =
             editPropertyName
 
-        propName name index path =
+        propName name index path val =
             let
                 hostPointer =
                     makeJsonPointer path
@@ -396,23 +396,28 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 propId =
                     id ++ "/prop/" ++ newPointer
             in
-                if hostPointer == editPropPath && index == editIndex then
-                    name
-                        |> Element.inputText JsonEditor
-                            [ onInput <| SetPropertyName
-                            , Attributes.size <| String.length name + 1
-                            , onBlur <| StopEditing
-                            , Attributes.tabindex 0
-                            , Attributes.id propId
-                            ]
-                        |> el None []
-                else
-                    name
-                        |> text
-                        |> el PropertyName
-                            [ Attributes.tabindex 0
-                            , onFocus <| SetEditPropertyName propId path index
-                            ]
+                case val of
+                    DeletedValue _ ->
+                        name |> text |> el PropertyName []
+
+                    _ ->
+                        if hostPointer == editPropPath && index == editIndex then
+                            name
+                                |> Element.inputText JsonEditor
+                                    [ onInput <| SetPropertyName
+                                    , Attributes.size <| String.length name + 1
+                                    , onBlur <| StopEditing
+                                    , Attributes.tabindex 0
+                                    , Attributes.id propId
+                                    ]
+                                |> el None []
+                        else
+                            name
+                                |> text
+                                |> el PropertyName
+                                    [ Attributes.tabindex 0
+                                    , onFocus <| SetEditPropertyName propId path index
+                                    ]
 
         itemRow isEditableProp index name prop path =
             let
@@ -441,24 +446,47 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         ]
                     <|
                         text ""
-                  , propName name index path
+                  , propName name index path prop
                   , ": "
                         |> text
                         |> el PropertySeparator []
                   , case prop of
+                        DeletedValue (StringEValue s) ->
+                            s |> toString |> flip (++) "," |> text
+
                         StringEValue s ->
                             s |> toString |> flip (++) "," |> text
 
                         NumericEValue s ->
                             s |> toString |> flip (++) "," |> text
 
+                        DeletedValue (BoolEValue s) ->
+                            (if s then
+                                "true"
+                             else
+                                "false"
+                            )
+                                |> flip (++) ","
+                                |> text
+
                         BoolEValue s ->
-                            s |> toString |> flip (++) "," |> text
+                            (if s then
+                                "true"
+                             else
+                                "false"
+                            )
+                                |> flip (++) ","
+                                |> text
+
+                        DeletedValue (ObjectEValue _) ->
+                            "{...}" |> text
 
                         ObjectEValue _ ->
                             "{" |> text
 
-                        -- walkValue prop
+                        DeletedValue (ArrayEValue _) ->
+                            "[...]" |> text
+
                         ArrayEValue _ ->
                             "[" |> text
 
