@@ -455,6 +455,13 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             s |> toString |> flip (++) "," |> text
 
                         StringEValue s ->
+                            s
+                                |> toString
+                                |> flip (++) ","
+                                |> text
+                                |> el PropertyValue []
+
+                        DeletedValue (NumericEValue s) ->
                             s |> toString |> flip (++) "," |> text
 
                         NumericEValue s ->
@@ -507,6 +514,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 else
                                     "none"
                               )
+                            , ( "color", "grey" )
                             ]
                         ]
                 , case prop of
