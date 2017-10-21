@@ -1,6 +1,7 @@
 module JsonInput exposing (Model, update, view, init, getValue, ExternalMsg(Select, OnInput), Msg(SetEditableValue))
 
 import Html exposing (Html)
+import List.Extra
 import Dict exposing (Dict)
 import StyleSheet
     exposing
@@ -748,15 +749,11 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     let
                         lastIndex =
                             props
-                                |> List.reverse
-                                |> List.foldl
-                                    (\( _, v ) x ->
-                                        if v == PermanentlyDeletedValue then
-                                            x - 1
-                                        else
-                                            x
+                                |> List.Extra.takeWhileRight
+                                    (\( _, v ) ->
+                                        v == PermanentlyDeletedValue
                                     )
-                                    (List.length props - 1)
+                                |> List.length
                     in
                         props
                             |> List.indexedMap
@@ -773,15 +770,9 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     let
                         lastIndex =
                             list
-                                |> List.reverse
-                                |> List.foldl
-                                    (\v x ->
-                                        if v == PermanentlyDeletedValue then
-                                            x - 1
-                                        else
-                                            x
-                                    )
-                                    (List.length list - 1)
+                                |> List.Extra.takeWhileRight
+                                    ((==) PermanentlyDeletedValue)
+                                |> List.length
                     in
                         list
                             |> List.indexedMap
