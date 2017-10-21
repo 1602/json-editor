@@ -1,4 +1,4 @@
-module Helpers exposing (deleteIn, setJsonValue)
+module Helpers exposing (deleteIn, setJsonValue, setPropertyNameInJsonValue)
 
 import Json.Decode as Decode exposing (Value, decodeValue, decodeString)
 import EditableJsonValue exposing (EditableJsonValue(..))
@@ -224,3 +224,34 @@ setPropertyInJsonValue key value object =
                     [ ( key, value ) ]
                         |> ObjectEValue
                         |> Ok
+
+
+setPropertyNameInJsonValue : ( String, Int ) -> String -> EditableJsonValue -> Result String EditableJsonValue
+setPropertyNameInJsonValue ( jsonPointer, index ) newName hostValue =
+    let
+        renameKey val =
+            case val of
+                ObjectEValue v ->
+                    v
+                        |> List.indexedMap
+                            (\i ( k, v ) ->
+                                ( if index == i then
+                                    newName
+                                  else
+                                    k
+                                , v
+                                )
+                            )
+                        |> ObjectEValue
+                        >> Ok
+
+                _ ->
+                    Err "Can not rename property of this json value"
+
+        targetValue =
+            hostValue
+                |> getJsonValue (parseJsonPointer jsonPointer)
+                |> Result.andThen renameKey
+                |> Result.withDefault hostValue
+    in
+        setJsonValue hostValue jsonPointer targetValue

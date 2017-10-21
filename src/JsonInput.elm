@@ -55,9 +55,13 @@ import Json.Schema.Helpers
         , makeJsonPointer
         , resolve
         , calcSubSchemaType
+        )
+import Helpers
+    exposing
+        ( deleteIn
+        , setJsonValue
         , setPropertyNameInJsonValue
         )
-import Helpers exposing (deleteIn, setJsonValue)
 import Validation
 import Json.Schema.Definitions as Schema
     exposing
@@ -332,10 +336,10 @@ update msg model =
             -}
             --in
             ( { model
-                | jsonValue =
-                    model.jsonValue
+                | editableJsonValue =
+                    model.editableJsonValue
                         |> setPropertyNameInJsonValue model.editPropertyName str
-                        |> Result.withDefault model.jsonValue
+                        |> Result.withDefault model.editableJsonValue
                     {-
                        , activeSection =
                            if model.activeSection == model.editPropertyName then
@@ -372,13 +376,10 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
         ( editPropPath, editIndex ) =
             editPropertyName
 
-        propName name index path val =
+        propName isEditableProp name index path val =
             let
                 hostPointer =
                     makeJsonPointer path
-
-                isEditableProp =
-                    True
 
                 pp =
                     path
@@ -402,7 +403,11 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         name |> text |> el PropertyName []
 
                     _ ->
-                        if hostPointer == editPropPath && index == editIndex then
+                        if not isEditableProp then
+                            name
+                                |> text
+                                |> el ItemIndex []
+                        else if hostPointer == editPropPath && index == editIndex then
                             name
                                 |> Element.inputText JsonEditor
                                     [ onInput <| SetPropertyName
@@ -462,13 +467,16 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             ]
 
                 editable s =
-                    s
-                        |> flip (++) ","
-                        |> text
-                        |> el PropertyValue
-                            [ onFocus <| SetEditPath valId newPointer s
-                            , Attributes.tabindex 0
-                            ]
+                    if isEditing then
+                        editForm 1
+                    else
+                        s
+                            |> flip (++) ","
+                            |> text
+                            |> el PropertyValue
+                                [ onFocus <| SetEditPath valId newPointer s
+                                , Attributes.tabindex 0
+                                ]
             in
                 [ [ Element.checkbox (not isDeleted)
                         None
@@ -484,7 +492,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         ]
                     <|
                         text ""
-                  , propName name index path prop
+                  , propName isEditableProp name index path prop
                   , ": "
                         |> text
                         |> el PropertySeparator []
@@ -493,21 +501,15 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             s |> toString |> flip (++) "," |> text
 
                         StringEValue s ->
-                            if isEditing then
-                                editForm 1
-                            else
-                                s
-                                    |> toString
-                                    |> editable
+                            s
+                                |> toString
+                                |> editable
 
                         DeletedValue (NumericEValue s) ->
                             s |> toString |> flip (++) "," |> text
 
                         NumericEValue s ->
-                            if isEditing then
-                                editForm 1
-                            else
-                                s |> toString |> editable
+                            s |> toString |> editable
 
                         DeletedValue (BoolEValue s) ->
                             (if s then
@@ -524,8 +526,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                              else
                                 "false"
                             )
-                                |> flip (++) ","
-                                |> text
+                                |> editable
 
                         DeletedValue (ObjectEValue _) ->
                             "{...}" |> text
@@ -593,7 +594,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                 ArrayEValue list ->
                     list
-                        |> List.indexedMap (\index prop -> itemRow True index (index |> toString) prop path)
+                        |> List.indexedMap (\index prop -> itemRow False index (index |> toString) prop path)
                         |> List.concat
                         |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
 
