@@ -53,6 +53,8 @@ stylesheet =
             ]
         , style DataRowHint
             [ Style.cursor "text"
+            , Style.prop "min-width" "1ch"
+            , Style.prop "outline" "none"
             , hover
                 [ Color.background <| Color.rgba 0 0 0 0.03
                 ]

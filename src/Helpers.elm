@@ -1,11 +1,11 @@
-module Helpers exposing (deleteIn, setJsonValue, setPropertyNameInJsonValue)
+module Helpers exposing (deleteIn, getJsonValue, setJsonValue, setPropertyNameInJsonValue)
 
 import Json.Decode as Decode exposing (Value, decodeValue, decodeString)
 import EditableJsonValue exposing (EditableJsonValue(..))
 
 
-deleteIn : Bool -> EditableJsonValue -> List String -> Result String EditableJsonValue
-deleteIn isDelete hostValue p =
+deleteIn : Bool -> Bool -> EditableJsonValue -> List String -> Result String EditableJsonValue
+deleteIn isDelete isRecoverable hostValue p =
     let
         ( key, path ) =
             p
@@ -43,6 +43,8 @@ deleteIn isDelete hostValue p =
                                 else
                                     ( k, v )
                             )
+                        |> List.filter (\( _, v ) -> isRecoverable || (v /= (DeletedValue EmptyValue)))
+                        |> Debug.log (isRecoverable |> toString)
                         |> (ObjectEValue >> Ok)
 
                 ArrayEValue res ->
@@ -54,6 +56,7 @@ deleteIn isDelete hostValue p =
                                 else
                                     v
                             )
+                        |> List.filter (\v -> isRecoverable || (v /= (DeletedValue EmptyValue)))
                         |> (ArrayEValue >> Ok)
 
                 _ ->

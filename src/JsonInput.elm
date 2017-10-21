@@ -48,7 +48,6 @@ import Json.Schema.Helpers
     exposing
         ( implyType
         , typeToString
-        , getJsonValue
         , for
         , whenObjectSchema
         , parseJsonPointer
@@ -59,6 +58,7 @@ import Json.Schema.Helpers
 import Helpers
     exposing
         ( deleteIn
+        , getJsonValue
         , setJsonValue
         , setPropertyNameInJsonValue
         )
@@ -216,7 +216,7 @@ updateValue model path newStuff =
 
 deletePath : Model -> Bool -> List String -> Model
 deletePath model isChecked path =
-    case deleteIn (not isChecked) model.editableJsonValue path of
+    case deleteIn (not isChecked) True model.editableJsonValue path of
         Ok val ->
             { model | editableJsonValue = val, jsonValue = val |> EditableJsonValue.makeJsonValue }
 
@@ -262,8 +262,8 @@ update msg model =
                 | editPath = ""
                 , editPropertyName = ( "", 0 )
                 , editableJsonValue =
-                    if model.editValue == "" && model.editPath /= "" then
-                        deleteIn True model.editableJsonValue (parseJsonPointer model.editPath)
+                    if (model.editValue == "" || model.editValue == "∅") && model.editPath /= "" then
+                        deleteIn True False model.editableJsonValue (parseJsonPointer model.editPath)
                             |> Result.withDefault model.editableJsonValue
                     else
                         model.editableJsonValue
@@ -288,6 +288,28 @@ update msg model =
                         , formId ++ "/value/" ++ newJsonPointer ++ "/" ++ (toString index)
                         )
 
+                obj =
+                    model.editableJsonValue
+                        |> getJsonValue path
+                        |> Result.map
+                            (\x ->
+                                case x of
+                                    ObjectEValue props ->
+                                        (List.take index props)
+                                            ++ [ ( "", EmptyValue ) ]
+                                            ++ (List.drop index props)
+                                            |> ObjectEValue
+
+                                    ArrayEValue items ->
+                                        (List.take index items)
+                                            ++ [ EmptyValue ]
+                                            ++ (List.drop index items)
+                                            |> ArrayEValue
+
+                                    x ->
+                                        x
+                            )
+
                 ( updatedModel, _ ) =
                     updateValue
                         { model
@@ -295,8 +317,8 @@ update msg model =
                             , editPropertyName = ( editProp, index )
                             , editValue = ""
                         }
-                        (newJsonPointer ++ "/")
-                        (Ok <| EmptyValue)
+                        newJsonPointer
+                        obj
             in
                 ( updatedModel
                 , Select id
@@ -425,7 +447,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                     , onFocus <| SetEditPropertyName propId path index
                                     ]
 
-        itemRow isEditableProp index name prop path =
+        itemRow isEditableProp index name prop isLast path =
             let
                 newPath =
                     path ++ [ name ]
@@ -540,13 +562,31 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         ArrayEValue _ ->
                             "[" |> text
 
+                        EmptyValue ->
+                            "∅"
+                                |> editable
+
                         _ ->
                             empty
-                  , el DataRowHint
-                        [ width <| fill 1
-                        , onClick <| InsertValue isEditableProp path index id
-                        ]
-                        (text "")
+                  , if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
+                        el DataRowHint
+                            ((if isLast then
+                                [ Attributes.tabindex 0 ]
+                              else
+                                []
+                             )
+                                ++ [ width <| fill 1
+                                   , InsertValue isEditableProp path (index + 1) id
+                                        |> \x ->
+                                            if isLast then
+                                                onFocus x
+                                            else
+                                                onClick x
+                                   ]
+                            )
+                            (text "")
+                    else
+                        empty
                   ]
                     |> row None
                         [ Attributes.class "item-row"
@@ -571,14 +611,34 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         empty
                 , case prop of
                     ObjectEValue _ ->
-                        "},"
-                            |> text
-                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
+                        if editPath == "" && editPropPath == "" then
+                            "},"
+                                |> text
+                                |> el DataRowHint
+                                    [ width <| fill 1
+                                    , inlineStyle [ ( "padding-left", "4ch" ) ]
+                                    , onClick <| InsertValue isEditableProp path (index + 1) id
+                                    , Attributes.tabindex 0
+                                    ]
+                        else
+                            "},"
+                                |> text
+                                |> el None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
 
                     ArrayEValue _ ->
-                        "],"
-                            |> text
-                            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
+                        if editPath == "" && editPropPath == "" then
+                            "],"
+                                |> text
+                                |> el DataRowHint
+                                    [ width <| fill 1
+                                    , inlineStyle [ ( "padding-left", "4ch" ) ]
+                                    , onClick <| InsertValue isEditableProp path (index + 1) id
+                                    , Attributes.tabindex 0
+                                    ]
+                        else
+                            "],"
+                                |> text
+                                |> el None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
 
                     _ ->
                         empty
@@ -588,13 +648,13 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
             case v of
                 ObjectEValue props ->
                     props
-                        |> List.indexedMap (\index ( name, prop ) -> itemRow True index name prop path)
+                        |> List.indexedMap (\index ( name, prop ) -> itemRow True index name prop (index == (List.length props) - 1) path)
                         |> List.concat
                         |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
 
                 ArrayEValue list ->
                     list
-                        |> List.indexedMap (\index prop -> itemRow False index (index |> toString) prop path)
+                        |> List.indexedMap (\index prop -> itemRow False index (index |> toString) prop (index == (List.length list) - 1) path)
                         |> List.concat
                         |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
 
@@ -603,7 +663,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
     in
         [ "{"
             |> text
-            |> el DataRowHint [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
+            |> el None [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
         , walkValue val []
         , "}"
             |> text
