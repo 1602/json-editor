@@ -16,6 +16,7 @@ import Json.Schema.Definitions as Schema
 type EditableJsonValue
     = EmptyValue
     | DeletedValue EditableJsonValue
+    | PermanentlyDeletedValue
     | StringEValue String
     | NumericEValue Float
     | BoolEValue Bool
@@ -71,6 +72,9 @@ makeJsonValue editableJsonValue =
         DeletedValue _ ->
             NullValue
 
+        PermanentlyDeletedValue ->
+            NullValue
+
         ObjectEValue obj ->
             obj
                 |> List.filter
@@ -80,6 +84,9 @@ makeJsonValue editableJsonValue =
                                 False
 
                             DeletedValue _ ->
+                                False
+
+                            PermanentlyDeletedValue ->
                                 False
 
                             _ ->
@@ -97,6 +104,9 @@ makeJsonValue editableJsonValue =
                                 False
 
                             DeletedValue _ ->
+                                False
+
+                            PermanentlyDeletedValue ->
                                 False
 
                             _ ->

@@ -22,15 +22,18 @@ deleteIn isDelete isRecoverable hostValue p =
             makeJsonPointer path
 
         applyAction val =
-            case val of
-                DeletedValue x ->
-                    if isDelete then
-                        DeletedValue x
-                    else
-                        x
+            if isRecoverable then
+                case val of
+                    DeletedValue x ->
+                        if isDelete then
+                            DeletedValue x
+                        else
+                            x
 
-                x ->
-                    DeletedValue x
+                    x ->
+                        DeletedValue x
+            else
+                PermanentlyDeletedValue
 
         rejectKey key val =
             case val of
@@ -43,7 +46,6 @@ deleteIn isDelete isRecoverable hostValue p =
                                 else
                                     ( k, v )
                             )
-                        |> List.filter (\( _, v ) -> isRecoverable || (v /= (DeletedValue EmptyValue)))
                         |> Debug.log (isRecoverable |> toString)
                         |> (ObjectEValue >> Ok)
 
@@ -56,7 +58,6 @@ deleteIn isDelete isRecoverable hostValue p =
                                 else
                                     v
                             )
-                        |> List.filter (\v -> isRecoverable || (v /= (DeletedValue EmptyValue)))
                         |> (ArrayEValue >> Ok)
 
                 _ ->

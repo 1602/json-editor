@@ -145,12 +145,6 @@ stylesheet =
                 , Style.prop "text-decoration" "none"
                 ]
             ]
-        , style SchemaHeader
-            [ Style.prop "outline" "none"
-            , Style.prop "font-family" "Menlo, monospace"
-            , Font.size 11
-            , Color.text fancyBlue
-            ]
         , style JsonEditor
             [ Style.prop "font-family" "Menlo, monospace"
             , Font.size 11

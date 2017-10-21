@@ -87,6 +87,7 @@ import EditableJsonValue
             , StringEValue
             , EmptyValue
             , DeletedValue
+            , PermanentlyDeletedValue
             )
         )
 
@@ -123,6 +124,7 @@ type
     | SetEditableValue Value
     | Delete (List String) Bool
     | SetEditPath String String String
+    | SetEditValuePath String String
     | SetEditPropertyName String (List String) Int
     | StopEditing
     | SetPropertyName String
@@ -241,6 +243,21 @@ update msg model =
             , Select id
             )
 
+        SetEditValuePath id jsonPointer ->
+            ( { model
+                | editPath = jsonPointer
+                , editPropertyName = ( "", 0 )
+                , editValue =
+                    model.editableJsonValue
+                        |> getJsonValue (parseJsonPointer jsonPointer)
+                        |> Result.withDefault (EmptyValue)
+                        |> EditableJsonValue.makeJsonValue
+                        |> encodeJsonValue
+                        |> Encode.encode 4
+              }
+            , Select id
+            )
+
         {-
            StringChange path str ->
                updateValue model path (str |> Encode.string |> OtherValue |> Ok) ! []
@@ -255,7 +272,6 @@ update msg model =
             str
                 |> decodeString jsonValueDecoder
                 |> Result.map EditableJsonValue.makeEditableJsonValue
-                |> Debug.log "haha"
                 |> updateValue { model | editValue = str, editPath = path } path
 
         StopEditing ->
@@ -470,6 +486,29 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 isEditing =
                     newPointer == editPath
 
+                multilineEdit _ =
+                    editValue
+                        |> Element.textArea JsonEditor
+                            [ onInput <| ValueChange newPointer
+                            , onBlur StopEditing
+                            , Attributes.width <| fill 1
+                            , editValue
+                                |> String.split "\n"
+                                |> List.length
+                                |> (+) 1
+                                |> Attributes.rows
+                            , inlineStyle [ ( "margin-left", "4ch" ) ]
+                            , Attributes.tabindex 0
+                            , Attributes.id valId
+                            ]
+                        |> Element.el None []
+                        |> Element.below
+                            [ valueUpdateErrors
+                                |> Dict.get newPointer
+                                |> Maybe.map (text >> (el InlineError []))
+                                |> Maybe.withDefault empty
+                            ]
+
                 editForm _ =
                     editValue
                         |> Element.inputText JsonEditor
@@ -561,9 +600,12 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             "{...}" |> text
 
                         ObjectEValue _ ->
-                            "{"
-                                |> text
-                                |> el PropertyValue []
+                            if isEditing then
+                                empty
+                            else
+                                "{"
+                                    |> text
+                                    |> el PropertyValue [ onClick <| SetEditValuePath valId newPointer ]
 
                         DeletedValue (ArrayEValue _) ->
                             "[...]" |> text
@@ -651,16 +693,24 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         ]
                 , case prop of
                     ObjectEValue _ ->
-                        walkValue prop newPath
+                        if isEditing then
+                            multilineEdit 1
+                        else
+                            walkValue prop newPath
 
                     ArrayEValue _ ->
-                        walkValue prop newPath
+                        if isEditing then
+                            multilineEdit 1
+                        else
+                            walkValue prop newPath
 
                     _ ->
                         empty
                 , case prop of
                     ObjectEValue _ ->
-                        if editPath == "" && editPropPath == "" then
+                        if isEditing then
+                            empty
+                        else if editPath == "" && editPropPath == "" then
                             "},"
                                 |> text
                                 |> el DataRowHint
@@ -675,7 +725,9 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 |> el None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
 
                     ArrayEValue _ ->
-                        if editPath == "" && editPropPath == "" then
+                        if isEditing then
+                            empty
+                        else if editPath == "" && editPropPath == "" then
                             "],"
                                 |> text
                                 |> el DataRowHint
@@ -697,13 +749,25 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
             case v of
                 ObjectEValue props ->
                     props
-                        |> List.indexedMap (\index ( name, prop ) -> itemRow True index name prop (index == (List.length props) - 1) path)
+                        |> List.indexedMap
+                            (\index ( name, prop ) ->
+                                if prop == PermanentlyDeletedValue then
+                                    []
+                                else
+                                    itemRow True index name prop (index == (List.length props) - 1) path
+                            )
                         |> List.concat
                         |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
                 ArrayEValue list ->
                     list
-                        |> List.indexedMap (\index prop -> itemRow False index (index |> toString) prop (index == (List.length list) - 1) path)
+                        |> List.indexedMap
+                            (\index prop ->
+                                if prop == PermanentlyDeletedValue then
+                                    []
+                                else
+                                    itemRow False index (index |> toString) prop (index == (List.length list) - 1) path
+                            )
                         |> List.concat
                         |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
