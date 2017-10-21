@@ -10,6 +10,7 @@ import Style.Border as Border
 type Styles
     = None
     | Main
+    | PropertiesBlock
     | Bordered
     | Error
     | Button
@@ -51,13 +52,18 @@ stylesheet =
             , Font.lineHeight 1.5
               -- line height, given as a ratio of current font size.
             ]
+        , style PropertiesBlock
+            [ Border.left 1
+            , Style.prop "border-color" "transparent"
+            , Style.prop "margin-left" "4ch"
+            , Style.hover
+                [ Style.prop "border-color" "rgba(0,0,0,0.05)"
+                ]
+            ]
         , style DataRowHint
             [ Style.cursor "text"
             , Style.prop "min-width" "1ch"
             , Style.prop "outline" "none"
-            , hover
-                [ Color.background <| Color.rgba 0 0 0 0.03
-                ]
             ]
         , style Bordered
             [ Border.all 1

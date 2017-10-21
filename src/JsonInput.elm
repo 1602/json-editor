@@ -14,6 +14,7 @@ import StyleSheet
             , NoOutline
             , SourceCode
             , PropertyName
+            , PropertiesBlock
             , ItemIndex
             , PropertyValue
             , PropertySeparator
@@ -285,7 +286,7 @@ update msg model =
                     else
                         ( ""
                         , newJsonPointer ++ "/" ++ (toString index)
-                        , formId ++ "/value/" ++ newJsonPointer ++ "/" ++ (toString index)
+                        , formId ++ "/val/" ++ newJsonPointer ++ "/" ++ (toString index)
                         )
 
                 obj =
@@ -505,19 +506,25 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         [ moveLeft 2
                         , inlineStyle [ ( "width", "4ch" ), ( "padding-left", "2ch" ) ]
                         , Attributes.class
-                            (if not isDeleted then
-                                "delete-property"
-                             else
+                            (if isDeleted then
                                 "restore-property"
+                             else
+                                "delete-property"
                             )
                         , onCheck <| Delete newPath
                         ]
                     <|
                         text ""
-                  , propName isEditableProp name index path prop
-                  , ": "
-                        |> text
-                        |> el PropertySeparator []
+                  , if isEditableProp then
+                        propName isEditableProp name index path prop
+                    else
+                        empty
+                  , if isEditableProp then
+                        ": "
+                            |> text
+                            |> el PropertySeparator []
+                    else
+                        empty
                   , case prop of
                         DeletedValue (StringEValue s) ->
                             s |> toString |> flip (++) "," |> text
@@ -554,13 +561,17 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             "{...}" |> text
 
                         ObjectEValue _ ->
-                            "{" |> text
+                            "{"
+                                |> text
+                                |> el PropertyValue []
 
                         DeletedValue (ArrayEValue _) ->
                             "[...]" |> text
 
                         ArrayEValue _ ->
-                            "[" |> text
+                            "["
+                                |> text
+                                |> el PropertyValue []
 
                         EmptyValue ->
                             "∅"
@@ -568,25 +579,63 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                         _ ->
                             empty
-                  , if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
-                        el DataRowHint
-                            ((if isLast then
-                                [ Attributes.tabindex 0 ]
-                              else
-                                []
-                             )
-                                ++ [ width <| fill 1
-                                   , InsertValue isEditableProp path (index + 1) id
-                                        |> \x ->
-                                            if isLast then
-                                                onFocus x
-                                            else
-                                                onClick x
-                                   ]
-                            )
-                            (text "")
-                    else
-                        empty
+                  , case prop of
+                        ArrayEValue x ->
+                            el DataRowHint
+                                ((if List.length x == 0 then
+                                    [ Attributes.tabindex 0 ]
+                                  else
+                                    []
+                                 )
+                                    ++ [ width <| fill 1
+                                       , InsertValue False newPath 0 id
+                                            |> \e ->
+                                                if List.length x == 0 && editValue /= "" then
+                                                    onFocus e
+                                                else
+                                                    onClick e
+                                       ]
+                                )
+                                (text "")
+
+                        ObjectEValue x ->
+                            el DataRowHint
+                                ((if List.length x == 0 then
+                                    [ Attributes.tabindex 0 ]
+                                  else
+                                    []
+                                 )
+                                    ++ [ width <| fill 1
+                                       , InsertValue True newPath 0 id
+                                            |> \e ->
+                                                if List.length x == 0 && editValue /= "" then
+                                                    onFocus e
+                                                else
+                                                    onClick e
+                                       ]
+                                )
+                                (text "")
+
+                        _ ->
+                            if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
+                                el DataRowHint
+                                    ((if isLast then
+                                        [ Attributes.tabindex 0 ]
+                                      else
+                                        []
+                                     )
+                                        ++ [ width <| fill 1
+                                           , InsertValue isEditableProp path (index + 1) id
+                                                |> \x ->
+                                                    if isLast && editValue /= "" then
+                                                        onFocus x
+                                                    else
+                                                        onClick x
+                                           ]
+                                    )
+                                    (text "")
+                            else
+                                empty
                   ]
                     |> row None
                         [ Attributes.class "item-row"
@@ -650,13 +699,13 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     props
                         |> List.indexedMap (\index ( name, prop ) -> itemRow True index name prop (index == (List.length props) - 1) path)
                         |> List.concat
-                        |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
+                        |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
                 ArrayEValue list ->
                     list
                         |> List.indexedMap (\index prop -> itemRow False index (index |> toString) prop (index == (List.length list) - 1) path)
                         |> List.concat
-                        |> column None [ inlineStyle [ ( "padding-left", "4ch" ) ], Attributes.class "properties-block" ]
+                        |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
                 _ ->
                     empty
