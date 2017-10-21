@@ -115,20 +115,22 @@ view model =
             [ height <| fill 1
             , width <| fill 1
             ]
-        <|
-            if model.dragOver then
-                [ row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop it!" ]
-                ]
-            else
+            [ if model.dragOver then
+                row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop it!" ]
+              else
                 case model.jsonInput.jsonValue of
                     ObjectValue [] ->
-                        [ row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop schema file (or link to a schema) here." ]
-                        ]
+                        row None [ center, Attributes.verticalCenter, width <| fill 1, height <| fill 1 ] [ text "Drop schema file (or link to a schema) here." ]
 
                     _ ->
-                        [ model.jsonInput
+                        model.jsonInput
                             |> JsonInput.view "id"
                             |> Element.html
                             |> Element.map JsonInputMsg
-                          --|> Element.textLayout SourceCode []
-                        ]
+                            |> el None
+                                [ width <| px 500
+                                , height <| fill 1
+                                , yScrollbar
+                                ]
+              --|> Element.textLayout SourceCode []
+            ]

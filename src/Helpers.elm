@@ -46,7 +46,6 @@ deleteIn isDelete isRecoverable hostValue p =
                                 else
                                     ( k, v )
                             )
-                        |> Debug.log (isRecoverable |> toString)
                         |> (ObjectEValue >> Ok)
 
                 ArrayEValue res ->
@@ -97,7 +96,7 @@ getJsonValue path value =
                                     Nothing
                             )
                             Nothing
-                        |> Result.fromMaybe "Key not found"
+                        |> Result.fromMaybe ("Key not found: " ++ (toString path))
                         |> Result.andThen (getJsonValue tail)
 
                 ArrayEValue v ->

@@ -126,7 +126,7 @@ type
     | SetEditPath String String String
     | SetEditValuePath String String
     | SetEditPropertyName String (List String) Int
-    | StopEditing
+    | StopEditing String
     | SetPropertyName String
 
 
@@ -250,7 +250,7 @@ update msg model =
                 , editValue =
                     model.editableJsonValue
                         |> getJsonValue (parseJsonPointer jsonPointer)
-                        |> Result.withDefault (EmptyValue)
+                        |> Result.withDefault model.editableJsonValue
                         |> EditableJsonValue.makeJsonValue
                         |> encodeJsonValue
                         |> Encode.encode 4
@@ -274,19 +274,26 @@ update msg model =
                 |> Result.map EditableJsonValue.makeEditableJsonValue
                 |> updateValue { model | editValue = str, editPath = path } path
 
-        StopEditing ->
-            ( { model
-                | editPath = ""
-                , editPropertyName = ( "", 0 )
-                , editableJsonValue =
-                    if (model.editValue == "" || model.editValue == "∅") && model.editPath /= "" then
-                        deleteIn True False model.editableJsonValue (parseJsonPointer model.editPath)
-                            |> Result.withDefault model.editableJsonValue
-                    else
-                        model.editableJsonValue
-              }
-            , NoOp
-            )
+        StopEditing propName ->
+            let
+                ( editPropPath, _ ) =
+                    model.editPropertyName
+            in
+                ( { model
+                    | editPath = ""
+                    , editPropertyName = ( "", 0 )
+                    , editableJsonValue =
+                        if (model.editValue == "" || model.editValue == "∅") && model.editPath /= "" then
+                            deleteIn True False model.editableJsonValue (parseJsonPointer model.editPath)
+                                |> Result.withDefault model.editableJsonValue
+                        else if editPropPath /= "" && propName == "" then
+                            deleteIn True False model.editableJsonValue (parseJsonPointer (editPropPath ++ "/"))
+                                |> Result.withDefault model.editableJsonValue
+                        else
+                            model.editableJsonValue
+                  }
+                , NoOp
+                )
 
         InsertValue hasKey path index formId ->
             let
@@ -363,29 +370,11 @@ update msg model =
             )
 
         SetPropertyName str ->
-            --let
-            {-
-               newJsonPointer =
-                   model.editPropertyName
-                       |> parseJsonPointer
-                       |> List.reverse
-                       |> (::) str
-                       |> List.reverse
-                       |> makeJsonPointer
-            -}
-            --in
             ( { model
                 | editableJsonValue =
                     model.editableJsonValue
                         |> setPropertyNameInJsonValue model.editPropertyName str
                         |> Result.withDefault model.editableJsonValue
-                    {-
-                       , activeSection =
-                           if model.activeSection == model.editPropertyName then
-                               newJsonPointer
-                           else
-                               model.activeSection
-                    -}
               }
             , NoOp
             )
@@ -451,7 +440,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 |> Element.inputText JsonEditor
                                     [ onInput <| SetPropertyName
                                     , Attributes.size <| String.length name + 1
-                                    , onBlur <| StopEditing
+                                    , onBlur <| StopEditing name
                                     , Attributes.tabindex 0
                                     , Attributes.id propId
                                     ]
@@ -467,7 +456,12 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
         itemRow isEditableProp index name prop isLast path =
             let
                 newPath =
-                    path ++ [ name ]
+                    case name of
+                        Just n ->
+                            path ++ [ n ]
+
+                        Nothing ->
+                            path
 
                 newPointer =
                     makeJsonPointer newPath
@@ -490,7 +484,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     editValue
                         |> Element.textArea JsonEditor
                             [ onInput <| ValueChange newPointer
-                            , onBlur StopEditing
+                            , onBlur <| StopEditing ""
                             , Attributes.width <| fill 1
                             , editValue
                                 |> String.split "\n"
@@ -513,7 +507,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     editValue
                         |> Element.inputText JsonEditor
                             [ onInput <| ValueChange newPointer
-                            , onBlur StopEditing
+                            , onBlur <| StopEditing ""
                             , Attributes.size <| String.length editValue + 1
                             , inlineStyle [ ( "display", "inline-block" ) ]
                             , Attributes.tabindex 0
@@ -555,7 +549,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                     <|
                         text ""
                   , if isEditableProp then
-                        propName isEditableProp name index path prop
+                        propName isEditableProp (name |> Maybe.withDefault "") index path prop
                     else
                         empty
                   , if isEditableProp then
@@ -757,7 +751,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 if prop == PermanentlyDeletedValue then
                                     []
                                 else
-                                    itemRow True index name prop (index == (List.length props) - 1) path
+                                    itemRow True index (Just name) prop (index == (List.length props) - 1) path
                             )
                         |> List.concat
                         |> column PropertiesBlock [ Attributes.class "properties-block" ]
@@ -769,7 +763,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 if prop == PermanentlyDeletedValue then
                                     []
                                 else
-                                    itemRow False index (index |> toString) prop (index == (List.length list) - 1) path
+                                    itemRow False index (index |> toString |> Just) prop (index == (List.length list) - 1) path
                             )
                         |> List.concat
                         |> column PropertiesBlock [ Attributes.class "properties-block" ]
@@ -777,14 +771,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 _ ->
                     empty
     in
-        [ "{"
-            |> text
-            |> el None [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
-        , walkValue val []
-        , "}"
-            |> text
-            |> el None [ width <| fill 1, inlineStyle [ ( "padding-left", "4ch" ) ] ]
-        ]
+        itemRow False 0 Nothing val True []
             |> column None []
 
 
@@ -920,7 +907,7 @@ form_ id valueUpdateErrors editPropertyName editPath editValue val path =
                     editValue
                         |> Element.textArea JsonEditor
                             [ onInput <| ValueChange jsp
-                            , onBlur StopEditing
+                            , onBlur <| StopEditing ""
                             , Attributes.width <| fill 1
                             , Attributes.rows <| (+) 1 <| List.length <| String.split "\n" editValue
                             , inlineStyle [ ( "display", "inline-block" ) ]
@@ -944,7 +931,7 @@ form_ id valueUpdateErrors editPropertyName editPath editValue val path =
                     editValue
                         |> Element.inputText JsonEditor
                             [ onInput <| ValueChange jsp
-                            , onBlur StopEditing
+                            , onBlur <| StopEditing ""
                             , Attributes.size <| String.length editValue + 1
                             , inlineStyle [ ( "display", "inline-block" ) ]
                             , Attributes.tabindex 0
