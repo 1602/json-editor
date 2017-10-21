@@ -1,4 +1,4 @@
-module Helpers exposing (deleteIn)
+module Helpers exposing (deleteIn, setJsonValue)
 
 import Json.Decode as Decode exposing (Value, decodeValue, decodeString)
 import EditableJsonValue exposing (EditableJsonValue(..))

@@ -48,7 +48,6 @@ import Json.Schema.Helpers
     exposing
         ( implyType
         , typeToString
-        , setJsonValue
         , getJsonValue
         , for
         , whenObjectSchema
@@ -58,7 +57,7 @@ import Json.Schema.Helpers
         , calcSubSchemaType
         , setPropertyNameInJsonValue
         )
-import Helpers exposing (deleteIn)
+import Helpers exposing (deleteIn, setJsonValue)
 import Validation
 import Json.Schema.Definitions as Schema
     exposing
@@ -180,31 +179,32 @@ updateValue model path newStuff =
             { model | valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message }
     in
         newStuff
-            |> Result.andThen
-                (\val ->
-                    val
-                        |> EditableJsonValue.makeJsonValue
-                        |> setJsonValue model.jsonValue path
-                )
+            |> Result.andThen (setJsonValue model.editableJsonValue path)
             |> \res ->
                 case res of
                     Ok v ->
-                        case makeValidSchema v model.schema of
-                            Ok x ->
-                                ( { model
-                                    | jsonValue = v
-                                    , valueUpdateErrors = model.valueUpdateErrors |> Dict.remove path
-                                  }
-                                , OnInput
-                                )
+                        let
+                            vv =
+                                EditableJsonValue.makeJsonValue v
+                        in
+                            case makeValidSchema vv model.schema of
+                                Ok _ ->
+                                    ( { model
+                                        | editableJsonValue = v
+                                        , jsonValue = vv
+                                        , valueUpdateErrors = model.valueUpdateErrors |> Dict.remove path
+                                      }
+                                    , OnInput
+                                    )
 
-                            Err message ->
-                                ( { model
-                                    | jsonValue = v
-                                    , valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message
-                                  }
-                                , OnInput
-                                )
+                                Err message ->
+                                    ( { model
+                                        | editableJsonValue = v
+                                        , jsonValue = vv
+                                        , valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message
+                                      }
+                                    , OnInput
+                                    )
 
                     Err s ->
                         ( addError s, NoOp )
@@ -250,6 +250,7 @@ update msg model =
             str
                 |> decodeString jsonValueDecoder
                 |> Result.map EditableJsonValue.makeEditableJsonValue
+                |> Debug.log "haha"
                 |> updateValue { model | editValue = str, editPath = path } path
 
         StopEditing ->
@@ -424,6 +425,9 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                 newPath =
                     path ++ [ name ]
 
+                newPointer =
+                    makeJsonPointer newPath
+
                 isDeleted =
                     case prop of
                         DeletedValue _ ->
@@ -431,6 +435,40 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                         _ ->
                             False
+
+                valId =
+                    id ++ "/val/" ++ newPointer
+
+                isEditing =
+                    newPointer == editPath
+
+                editForm _ =
+                    editValue
+                        |> Element.inputText JsonEditor
+                            [ onInput <| ValueChange newPointer
+                            , onBlur StopEditing
+                            , Attributes.size <| String.length editValue + 1
+                            , inlineStyle [ ( "display", "inline-block" ) ]
+                            , Attributes.tabindex 0
+                            , Attributes.id valId
+                            ]
+                        |> Element.el None
+                            [ inlineStyle [ ( "display", "inline-block" ) ] ]
+                        |> Element.below
+                            [ valueUpdateErrors
+                                |> Dict.get newPointer
+                                |> Maybe.map (text >> (el InlineError []))
+                                |> Maybe.withDefault empty
+                            ]
+
+                editable s =
+                    s
+                        |> flip (++) ","
+                        |> text
+                        |> el PropertyValue
+                            [ onFocus <| SetEditPath valId newPointer s
+                            , Attributes.tabindex 0
+                            ]
             in
                 [ [ Element.checkbox (not isDeleted)
                         None
@@ -455,17 +493,21 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             s |> toString |> flip (++) "," |> text
 
                         StringEValue s ->
-                            s
-                                |> toString
-                                |> flip (++) ","
-                                |> text
-                                |> el PropertyValue []
+                            if isEditing then
+                                editForm 1
+                            else
+                                s
+                                    |> toString
+                                    |> editable
 
                         DeletedValue (NumericEValue s) ->
                             s |> toString |> flip (++) "," |> text
 
                         NumericEValue s ->
-                            s |> toString |> flip (++) "," |> text
+                            if isEditing then
+                                editForm 1
+                            else
+                                s |> toString |> editable
 
                         DeletedValue (BoolEValue s) ->
                             (if s then
