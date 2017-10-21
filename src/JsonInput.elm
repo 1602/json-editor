@@ -618,45 +618,45 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                         _ ->
                             empty
-                  , case prop of
-                        ArrayEValue x ->
-                            el DataRowHint
-                                ((if List.length x == 0 then
-                                    [ Attributes.tabindex 0 ]
-                                  else
-                                    []
-                                 )
-                                    ++ [ width <| fill 1
-                                       , InsertValue False newPath 0 id
-                                            |> \e ->
-                                                if List.length x == 0 && editValue /= "" then
-                                                    onFocus e
-                                                else
-                                                    onClick e
-                                       ]
-                                )
-                                (text "")
+                  , if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
+                        case prop of
+                            ArrayEValue x ->
+                                el DataRowHint
+                                    ((if List.length x == 0 then
+                                        [ Attributes.tabindex 0 ]
+                                      else
+                                        []
+                                     )
+                                        ++ [ width <| fill 1
+                                           , InsertValue False newPath 0 id
+                                                |> \e ->
+                                                    if List.length x == 0 && editValue /= "" then
+                                                        onFocus e
+                                                    else
+                                                        onClick e
+                                           ]
+                                    )
+                                    (text "")
 
-                        ObjectEValue x ->
-                            el DataRowHint
-                                ((if List.length x == 0 then
-                                    [ Attributes.tabindex 0 ]
-                                  else
-                                    []
-                                 )
-                                    ++ [ width <| fill 1
-                                       , InsertValue True newPath 0 id
-                                            |> \e ->
-                                                if List.length x == 0 && editValue /= "" then
-                                                    onFocus e
-                                                else
-                                                    onClick e
-                                       ]
-                                )
-                                (text "")
+                            ObjectEValue x ->
+                                el DataRowHint
+                                    ((if List.length x == 0 then
+                                        [ Attributes.tabindex 0 ]
+                                      else
+                                        []
+                                     )
+                                        ++ [ width <| fill 1
+                                           , InsertValue True newPath 0 id
+                                                |> \e ->
+                                                    if List.length x == 0 && editValue /= "" then
+                                                        onFocus e
+                                                    else
+                                                        onClick e
+                                           ]
+                                    )
+                                    (text "")
 
-                        _ ->
-                            if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
+                            _ ->
                                 el DataRowHint
                                     ((if isLast then
                                         [ Attributes.tabindex 0 ]
@@ -673,8 +673,8 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                            ]
                                     )
                                     (text "")
-                            else
-                                empty
+                    else
+                        empty
                   ]
                     |> row None
                         [ Attributes.class "item-row"
@@ -745,28 +745,54 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
         walkValue v path =
             case v of
                 ObjectEValue props ->
-                    props
-                        |> List.indexedMap
-                            (\index ( name, prop ) ->
-                                if prop == PermanentlyDeletedValue then
-                                    []
-                                else
-                                    itemRow True index (Just name) prop (index == (List.length props) - 1) path
-                            )
-                        |> List.concat
-                        |> column PropertiesBlock [ Attributes.class "properties-block" ]
+                    let
+                        lastIndex =
+                            props
+                                |> List.reverse
+                                |> List.foldl
+                                    (\( _, v ) x ->
+                                        if v == PermanentlyDeletedValue then
+                                            x - 1
+                                        else
+                                            x
+                                    )
+                                    (List.length props - 1)
+                    in
+                        props
+                            |> List.indexedMap
+                                (\index ( name, prop ) ->
+                                    if prop == PermanentlyDeletedValue then
+                                        []
+                                    else
+                                        itemRow True index (Just name) prop (index == lastIndex) path
+                                )
+                            |> List.concat
+                            |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
                 ArrayEValue list ->
-                    list
-                        |> List.indexedMap
-                            (\index prop ->
-                                if prop == PermanentlyDeletedValue then
-                                    []
-                                else
-                                    itemRow False index (index |> toString |> Just) prop (index == (List.length list) - 1) path
-                            )
-                        |> List.concat
-                        |> column PropertiesBlock [ Attributes.class "properties-block" ]
+                    let
+                        lastIndex =
+                            list
+                                |> List.reverse
+                                |> List.foldl
+                                    (\v x ->
+                                        if v == PermanentlyDeletedValue then
+                                            x - 1
+                                        else
+                                            x
+                                    )
+                                    (List.length list - 1)
+                    in
+                        list
+                            |> List.indexedMap
+                                (\index prop ->
+                                    if prop == PermanentlyDeletedValue then
+                                        []
+                                    else
+                                        itemRow False index (index |> toString |> Just) prop (index == lastIndex) path
+                                )
+                            |> List.concat
+                            |> column PropertiesBlock [ Attributes.class "properties-block" ]
 
                 _ ->
                     empty
