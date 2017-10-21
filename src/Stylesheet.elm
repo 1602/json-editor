@@ -64,6 +64,7 @@ stylesheet =
             [ Style.cursor "text"
             , Style.prop "min-width" "1ch"
             , Style.prop "outline" "none"
+              -- , Color.background Color.lightGreen
             ]
         , style Bordered
             [ Border.all 1

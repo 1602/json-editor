@@ -43,7 +43,10 @@ import Element.Attributes as Attributes
         , moveLeft
         )
 import Element exposing (Element, el, row, text, column, paragraph, empty)
-import Markdown
+
+
+-- import Markdown
+
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
 import Json.Encode as Encode
 import Json.Schema.Helpers
@@ -531,9 +534,13 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             |> flip (++) ","
                             |> text
                             |> el PropertyValue
-                                [ onFocus <| SetEditPath valId newPointer s
-                                , Attributes.tabindex 0
-                                ]
+                                (if name /= Just "" then
+                                    [ onFocus <| SetEditPath valId newPointer s
+                                    , Attributes.tabindex 0
+                                    ]
+                                 else
+                                    []
+                                )
             in
                 [ [ Element.checkbox (not isDeleted)
                         None
@@ -614,12 +621,12 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                     |> el PropertyValue [ onClick <| SetEditValuePath valId newPointer ]
 
                         EmptyValue ->
-                            "∅"
+                            ""
                                 |> editable
 
                         _ ->
                             empty
-                  , if editPath == "" && editPropPath == "" || isLast && editValue /= "∅" then
+                  , if editPath == "" && editPropPath == "" || isLast && editValue /= "" then
                         case prop of
                             ArrayEValue x ->
                                 el DataRowHint
@@ -715,7 +722,6 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                     [ width <| fill 1
                                     , inlineStyle [ ( "padding-left", "4ch" ) ]
                                     , onClick <| InsertValue isEditableProp path (index + 1) id
-                                    , Attributes.tabindex 0
                                     ]
                         else
                             "},"
@@ -732,7 +738,6 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                     [ width <| fill 1
                                     , inlineStyle [ ( "padding-left", "4ch" ) ]
                                     , onClick <| InsertValue isEditableProp path (index + 1) id
-                                    , Attributes.tabindex 0
                                     ]
                         else
                             "],"
@@ -754,6 +759,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                         v == PermanentlyDeletedValue
                                     )
                                 |> List.length
+                                |> (-) (List.length props - 1)
                     in
                         props
                             |> List.indexedMap
@@ -773,6 +779,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                                 |> List.Extra.takeWhileRight
                                     ((==) PermanentlyDeletedValue)
                                 |> List.length
+                                |> (-) (List.length list - 1)
                     in
                         list
                             |> List.indexedMap
@@ -790,279 +797,3 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
     in
         itemRow False 0 Nothing val True []
             |> column None []
-
-
-form_ : String -> Dict String String -> ( String, Int ) -> String -> String -> JsonValue -> List String -> List View
-form_ id valueUpdateErrors editPropertyName editPath editValue val path =
-    let
-        offset level n =
-            el None
-                [ inlineStyle
-                    [ ( "display", "inline-block" )
-                    , ( "margin-left", (level + n |> (*) 2 |> toString) ++ "ch" )
-                    , ( "padding-left", "1ch" )
-                    ]
-                , Attributes.class "deletable"
-                ]
-
-        deleteMe path =
-            Element.onLeft
-                [ el None
-                    [ Attributes.class "delete-me"
-                    , Attributes.moveRight 5
-                    ]
-                  <|
-                    el None [] <|
-                        text "-"
-                ]
-
-        itemRow isEditableProp level path ( index, key, prop ) =
-            let
-                pp =
-                    path
-                        ++ [ if isEditableProp then
-                                key
-                             else
-                                index |> toString
-                           ]
-
-                hostPointer =
-                    makeJsonPointer path
-
-                ( editPropPath, editIndex ) =
-                    editPropertyName
-
-                newPointer =
-                    makeJsonPointer pp
-
-                propId =
-                    id ++ "/prop/" ++ newPointer
-
-                propName =
-                    if isEditableProp then
-                        if hostPointer == editPropPath && index == editIndex then
-                            key
-                                |> Element.inputText JsonEditor
-                                    [ onInput <| SetPropertyName
-                                    , Attributes.size <| String.length key + 1
-                                    , onBlur <| SetEditPropertyName "" [] 0
-                                    , Attributes.tabindex 0
-                                    , Attributes.id propId
-                                    ]
-                                |> el None []
-                        else
-                            key
-                                |> text
-                                |> el PropertyName
-                                    [ Attributes.tabindex 0
-                                    , onFocus <| SetEditPropertyName propId path index
-                                    ]
-                    else
-                        index
-                            |> toString
-                            |> text
-                            |> el ItemIndex []
-            in
-                (propName
-                    |> offset level 1
-                    |> deleteMe pp
-                )
-                    :: (el PropertySeparator [ inlineStyle [ ( "display", "inline-block" ), ( "padding-right", "1ch" ) ] ] <| text ":")
-                    :: controls (level + 1) prop pp
-
-        joinWithCommaAndWrapWith jsp valId vvv open close isEditableProp level path list =
-            list
-                |> List.map (itemRow isEditableProp level path)
-                |> List.intersperse [ text ",", Element.break ]
-                |> List.concat
-                |> (\x ->
-                        (el PropertySeparator
-                            [ inlineStyle
-                                [ ( "padding-left"
-                                  , if level == 0 then
-                                        "1ch"
-                                    else
-                                        "0"
-                                  )
-                                , ( "display", "inline-block" )
-                                ]
-                            , onClick <| SetEditPath valId jsp <| Encode.encode 4 <| encodeJsonValue vvv
-                            ]
-                         <|
-                            text open
-                        )
-                            :: Element.break
-                            :: (x
-                                    ++ [ Element.break
-                                       , offset level 0 <|
-                                            el PropertySeparator
-                                                (if editPath == "" || editValue /= "" then
-                                                    [ onFocus <| InsertValue isEditableProp path (List.length list) id
-                                                    , Attributes.tabindex 0
-                                                    ]
-                                                 else
-                                                    []
-                                                )
-                                            <|
-                                                text close
-                                       ]
-                               )
-                   )
-
-        controls level val path =
-            let
-                jsp =
-                    makeJsonPointer path
-
-                valId =
-                    id ++ "/value/" ++ jsp
-
-                isEditing =
-                    jsp == editPath
-
-                multilineEdit editValue =
-                    editValue
-                        |> Element.textArea JsonEditor
-                            [ onInput <| ValueChange jsp
-                            , onBlur <| StopEditing ""
-                            , Attributes.width <| fill 1
-                            , Attributes.rows <| (+) 1 <| List.length <| String.split "\n" editValue
-                            , inlineStyle [ ( "display", "inline-block" ) ]
-                            , Attributes.tabindex 0
-                            , Attributes.id valId
-                            ]
-                        |> Element.el None
-                            [ inlineStyle
-                                [ ( "display", "block" )
-                                , ( "margin-left", (level + 1 |> (*) 2 |> toString) ++ "ch" )
-                                ]
-                            ]
-                        |> Element.below
-                            [ valueUpdateErrors
-                                |> Dict.get jsp
-                                |> Maybe.map (text >> (el InlineError []))
-                                |> Maybe.withDefault empty
-                            ]
-
-                editForm editValue =
-                    editValue
-                        |> Element.inputText JsonEditor
-                            [ onInput <| ValueChange jsp
-                            , onBlur <| StopEditing ""
-                            , Attributes.size <| String.length editValue + 1
-                            , inlineStyle [ ( "display", "inline-block" ) ]
-                            , Attributes.tabindex 0
-                            , Attributes.id valId
-                            ]
-                        |> Element.el None
-                            [ inlineStyle [ ( "display", "inline-block" ) ] ]
-                        |> Element.below
-                            [ valueUpdateErrors
-                                |> Dict.get jsp
-                                |> Maybe.map (text >> (el InlineError []))
-                                |> Maybe.withDefault empty
-                            ]
-
-                edit val =
-                    if isEditing then
-                        editValue |> editForm
-                    else
-                        val
-                            |> (\v ->
-                                    if v == "" then
-                                        "∅"
-                                    else
-                                        v
-                               )
-                            |> text
-                            |> Element.el PropertyValue
-                                [ inlineStyle [ ( "display", "inline-block" ) ]
-                                  --, Attributes.contenteditable False
-                                , onFocus <| SetEditPath valId jsp val
-                                , Attributes.tabindex 0
-                                ]
-            in
-                case val of
-                    ArrayValue list ->
-                        if isEditing then
-                            [ editValue |> multilineEdit ]
-                        else
-                            list
-                                |> List.indexedMap (\index item -> ( index, "", item ))
-                                |> joinWithCommaAndWrapWith jsp valId val "[" "]" False level path
-
-                    ObjectValue obj ->
-                        if isEditing then
-                            [ editValue |> multilineEdit ]
-                        else
-                            obj
-                                |> List.indexedMap (\index ( key, val ) -> ( index, key, val ))
-                                |> joinWithCommaAndWrapWith jsp valId val "{" "}" True level path
-
-                    StringValue str ->
-                        [ edit <| toString str ]
-
-                    NumericValue n ->
-                        [ edit <| toString n ]
-
-                    BooleanValue n ->
-                        [ edit <|
-                            (if n then
-                                "true"
-                             else
-                                "false"
-                            )
-                        ]
-
-                    NullValue ->
-                        [ edit "null" ]
-    in
-        controls 0 val path
-
-
-
-{- -}
-
-
-getFields : Value -> String -> List ( String, Value )
-getFields val subpath =
-    let
-        path =
-            subpath
-                |> String.split "/"
-                |> List.drop 1
-                |> List.filter ((/=) "")
-    in
-        val
-            |> Decode.decodeValue (Decode.at path <| Decode.keyValuePairs Decode.value)
-            |> Result.withDefault []
-            |> List.reverse
-
-
-col10 : List View -> View
-col10 =
-    column None [ spacing 10, padding 10 ]
-
-
-takeHalfWidth : View -> View
-takeHalfWidth =
-    el None [ width <| percent 50 ]
-
-
-when : Maybe a -> (a -> View) -> View
-when a fn =
-    case a of
-        Just s ->
-            fn s
-
-        Nothing ->
-            empty
-
-
-metaDoc : SubSchema -> View
-metaDoc s =
-    column None
-        []
-        [ when s.title (\title -> row None [ inlineStyle [ ( "font-size", "18px" ) ] ] [ title |> Element.bold ])
-        , when s.description (\description -> paragraph None [ inlineStyle [ ( "font-size", "16px" ) ] ] [ description |> Markdown.toHtml [] |> Element.html ])
-        ]
