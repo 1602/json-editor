@@ -542,7 +542,7 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
             in
                 [ [ Element.checkbox (not isDeleted)
                         None
-                        [ moveLeft 2
+                        [ moveLeft 1
                         , inlineStyle [ ( "width", "4ch" ), ( "padding-left", "2ch" ) ]
                         , Attributes.class
                             (if isDeleted then
@@ -611,9 +611,12 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             "[...]" |> text
 
                         ArrayEValue _ ->
-                            "["
-                                |> text
-                                |> el PropertyValue []
+                            if isEditing then
+                                empty
+                            else
+                                "["
+                                    |> text
+                                    |> el PropertyValue [ onClick <| SetEditValuePath valId newPointer ]
 
                         EmptyValue ->
                             "∅"
