@@ -598,6 +598,10 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             )
                                 |> editable
 
+                        NullEValue ->
+                            "null"
+                                |> editable
+
                         DeletedValue (ObjectEValue _) ->
                             "{...}" |> text
 

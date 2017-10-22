@@ -17,6 +17,8 @@ import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spa
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
 import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
+import Json.Schema.Random
+import Random
 import Json.Schema.Definitions as Schema
     exposing
         ( JsonValue(ObjectValue)
@@ -51,13 +53,23 @@ main =
 
 
 init : Value -> Location -> ( Model, Cmd Msg )
-init val location =
-    Model
-        -- dragOver
-        False
-        -- jsonInput
-        (JsonInput.init coreSchemaDraft6 val)
-        ! []
+init v location =
+    let
+        schema =
+            coreSchemaDraft6
+
+        settings =
+            Json.Schema.Random.defaultSettings
+
+        ( val, _ ) =
+            Random.step (Json.Schema.Random.value { settings | defaultListLengthLimit = 10 } schema) (Random.initialSeed 3)
+    in
+        Model
+            -- dragOver
+            False
+            -- jsonInput
+            (JsonInput.init schema val)
+            ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
