@@ -1,11 +1,11 @@
 module EditableJsonValue exposing (EditableJsonValue(..), makeEditableJsonValue, makeJsonValue)
 
-import Json.Schema.Definitions as Schema
+import JsonValue
     exposing
         ( JsonValue
             ( ObjectValue
             , ArrayValue
-            , BooleanValue
+            , BoolValue
             , NullValue
             , NumericValue
             , StringValue
@@ -34,7 +34,7 @@ makeEditableJsonValue jsonValue =
         NumericValue n ->
             NumericEValue n
 
-        BooleanValue b ->
+        BoolValue b ->
             BoolEValue b
 
         NullValue ->
@@ -61,7 +61,7 @@ makeJsonValue editableJsonValue =
             NumericValue n
 
         BoolEValue b ->
-            BooleanValue b
+            BoolValue b
 
         NullEValue ->
             NullValue

@@ -68,6 +68,7 @@ import Helpers
         , setPropertyNameInJsonValue
         )
 import Validation
+import JsonValue exposing (JsonValue(ObjectValue, ArrayValue))
 import Json.Schema.Definitions as Schema
     exposing
         ( Schema(BooleanSchema, ObjectSchema)
@@ -75,10 +76,6 @@ import Json.Schema.Definitions as Schema
         , Schemata(Schemata)
         , Type(AnyType, SingleType, NullableType, UnionType)
         , SingleType(IntegerType, NumberType, StringType, BooleanType)
-        , JsonValue(ObjectValue, ArrayValue, BooleanValue, NullValue, NumericValue, StringValue)
-        , jsonValueDecoder
-        , encodeJsonValue
-        , blankSchema
         )
 import EditableJsonValue
     exposing
@@ -139,7 +136,7 @@ init schema val =
     let
         jsonValue =
             val
-                |> Decode.decodeValue jsonValueDecoder
+                |> Decode.decodeValue JsonValue.decoder
                 |> Result.withDefault (ObjectValue [])
 
         editableJsonValue =
@@ -169,7 +166,7 @@ makeValidSchema jsonValue schema =
     let
         val =
             jsonValue
-                |> encodeJsonValue
+                |> JsonValue.encode
     in
         schema
             |> Validation.validate val
@@ -180,7 +177,7 @@ makeValidSchema jsonValue schema =
 getValue : Model -> Value
 getValue model =
     model.jsonValue
-        |> encodeJsonValue
+        |> JsonValue.encode
 
 
 updateValue : Model -> String -> Result String EditableJsonValue -> ( Model, ExternalMsg )
@@ -256,7 +253,7 @@ update msg model =
                         |> getJsonValue (parseJsonPointer jsonPointer)
                         |> Result.withDefault model.editableJsonValue
                         |> EditableJsonValue.makeJsonValue
-                        |> encodeJsonValue
+                        |> JsonValue.encode
                         |> Encode.encode 4
               }
             , Select id
@@ -274,7 +271,7 @@ update msg model =
         -}
         ValueChange path str ->
             str
-                |> decodeString jsonValueDecoder
+                |> decodeString JsonValue.decoder
                 |> Result.map EditableJsonValue.makeEditableJsonValue
                 |> updateValue { model | editValue = str, editPath = path } path
 
@@ -356,7 +353,7 @@ update msg model =
             ( { model
                 | jsonValue =
                     s
-                        |> Decode.decodeValue jsonValueDecoder
+                        |> Decode.decodeValue JsonValue.decoder
                         |> Result.withDefault (ObjectValue [])
               }
             , NoOp
