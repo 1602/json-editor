@@ -351,7 +351,11 @@ update msg model =
             )
 
         Delete path isDelete ->
-            ( deletePath model isDelete path, NoOp )
+            let
+                updatedModel =
+                    deletePath model isDelete path
+            in
+                ( updatedModel, OnInput )
 
         SetEditPropertyName id path index ->
             ( { model
