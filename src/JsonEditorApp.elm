@@ -124,11 +124,13 @@ update msg model =
                             case ji.jsonValue |> JsonValue.encode |> Json.Schema.fromValue of
                                 Ok schema ->
                                     let
-                                        ( val, _ ) =
+                                        ( val, seed ) =
                                             Random.step (Json.Schema.Random.value { settings | defaultListLengthLimit = 10 } schema) model.seed
                                     in
                                         { model
                                             | jsonInput = ji
+                                            , schema = schema
+                                            , seed = seed
                                             , randomValue = val
                                         }
                                             ! []

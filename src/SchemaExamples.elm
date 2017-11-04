@@ -365,7 +365,6 @@ bookingSchema =
             , ( "datePlace"
               , buildSchema
                     |> withType "object"
-                    |> withRequired [ "dateTime", "airportCode" ]
                     |> withProperties
                         [ ( "countryCode"
                           , buildSchema
@@ -389,7 +388,7 @@ bookingSchema =
                           )
                         ]
                     |> withPropertyNames buildSchema
-                    |> withEnum ([ "dateTime", "airportCode", "countryCode" ] |> List.map Encode.string)
+                    |> withRequired [ "dateTime", "airportCode", "countryCode" ]
               )
             , ( "currencyCode"
               , buildSchema
