@@ -16,13 +16,10 @@ import StyleSheet
 import Element.Attributes as Attributes exposing (center, vary, inlineStyle, spacing, padding, height, minWidth, width, yScrollbar, fill, px, percent)
 import Element exposing (Element, el, row, text, column, paragraph, empty)
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
-import Json.Schema.Examples exposing (coreSchemaDraft6, bookingSchema)
+import SchemaExamples exposing (coreSchemaDraft6, bookingSchema)
 import Json.Schema.Random
 import Random
-import Json.Schema.Definitions as Schema
-    exposing
-        ( JsonValue(ObjectValue)
-        )
+import JsonValue exposing (JsonValue(ObjectValue))
 
 
 type alias View =

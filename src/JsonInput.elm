@@ -49,26 +49,17 @@ import Element exposing (Element, el, row, text, column, paragraph, empty)
 
 import Json.Decode as Decode exposing (Decoder, decodeString, decodeValue, Value)
 import Json.Encode as Encode
-import Json.Schema.Helpers
-    exposing
-        ( implyType
-        , typeToString
-        , for
-        , whenObjectSchema
-        , parseJsonPointer
-        , makeJsonPointer
-        , resolve
-        , calcSubSchemaType
-        )
 import Helpers
     exposing
         ( deleteIn
         , getJsonValue
         , setJsonValue
         , setPropertyNameInJsonValue
+        , parseJsonPointer
+        , makeJsonPointer
         )
-import Validation
 import JsonValue exposing (JsonValue(ObjectValue, ArrayValue))
+import Json.Schema as JS
 import Json.Schema.Definitions as Schema
     exposing
         ( Schema(BooleanSchema, ObjectSchema)
@@ -169,7 +160,7 @@ makeValidSchema jsonValue schema =
                 |> JsonValue.encode
     in
         schema
-            |> Validation.validate val
+            |> JS.validateValue val
             |> Result.map (\_ -> val)
             |> Result.andThen (Decode.decodeValue Schema.decoder)
 
