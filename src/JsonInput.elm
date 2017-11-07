@@ -240,7 +240,39 @@ deletePath : Model -> Bool -> List String -> Model
 deletePath model isChecked path =
     case deleteIn (not isChecked) True model.editableJsonValue path of
         Ok val ->
-            { model | editableJsonValue = val, jsonValue = val |> EditableJsonValue.makeJsonValue }
+            let
+                jsonValue =
+                    val |> EditableJsonValue.makeJsonValue
+
+                addErrors =
+                    List.foldl
+                        (\err ->
+                            Dict.update err.jsonPath
+                                (\x ->
+                                    case x of
+                                        Just list ->
+                                            (toString err.error) :: list |> Just
+
+                                        Nothing ->
+                                            [ err.error |> toString ] |> Just
+                                )
+                        )
+                        Dict.empty
+            in
+                case makeValidSchema jsonValue model.schema of
+                    Ok _ ->
+                        { model
+                            | editableJsonValue = val
+                            , jsonValue = jsonValue
+                            , valueUpdateErrors = Dict.empty
+                        }
+
+                    Err listErrors ->
+                        { model
+                            | editableJsonValue = val
+                            , jsonValue = jsonValue
+                            , valueUpdateErrors = addErrors listErrors
+                        }
 
         Err s ->
             let
