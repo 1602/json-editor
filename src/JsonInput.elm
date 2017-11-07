@@ -60,6 +60,7 @@ import Helpers
         )
 import JsonValue exposing (JsonValue(ObjectValue, ArrayValue))
 import Json.Schema as JS
+import Json.Schema.Validation as Validation exposing (Error)
 import Json.Schema.Definitions as Schema
     exposing
         ( Schema(BooleanSchema, ObjectSchema)
@@ -93,7 +94,7 @@ type alias Model =
     , jsonValue : JsonValue
     , editableJsonValue : EditableJsonValue
     , error : Maybe String
-    , valueUpdateErrors : Dict String String
+    , valueUpdateErrors : Dict (List String) (List String)
     , editPath : String
     , editValue : String
     , editPropertyName : ( String, Int )
@@ -152,7 +153,7 @@ init schema val =
             ( "", 0 )
 
 
-makeValidSchema : JsonValue -> Schema -> Result String Schema
+makeValidSchema : JsonValue -> Schema -> Result (List Error) Schema
 makeValidSchema jsonValue schema =
     let
         val =
@@ -161,8 +162,7 @@ makeValidSchema jsonValue schema =
     in
         schema
             |> JS.validateValue val
-            |> Result.map (\_ -> val)
-            |> Result.andThen (Decode.decodeValue Schema.decoder)
+            |> Result.andThen (Decode.decodeValue Schema.decoder >> (Result.mapError (\_ -> [])))
 
 
 getValue : Model -> Value
@@ -174,8 +174,35 @@ getValue model =
 updateValue : Model -> String -> Result String EditableJsonValue -> ( Model, ExternalMsg )
 updateValue model path newStuff =
     let
+        addErrors =
+            List.foldl
+                (\err ->
+                    Dict.update err.jsonPath
+                        (\x ->
+                            case x of
+                                Just list ->
+                                    (toString err.error) :: list |> Just
+
+                                Nothing ->
+                                    [ err.error |> toString ] |> Just
+                        )
+                )
+                Dict.empty
+
         addError message =
-            { model | valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message }
+            { model
+                | valueUpdateErrors =
+                    Dict.empty
+                        |> Dict.update (parseJsonPointer path)
+                            (\x ->
+                                case x of
+                                    Just list ->
+                                        message :: list |> Just
+
+                                    Nothing ->
+                                        [ message ] |> Just
+                            )
+            }
     in
         newStuff
             |> Result.andThen (setJsonValue model.editableJsonValue path)
@@ -191,16 +218,16 @@ updateValue model path newStuff =
                                     ( { model
                                         | editableJsonValue = v
                                         , jsonValue = vv
-                                        , valueUpdateErrors = model.valueUpdateErrors |> Dict.remove path
+                                        , valueUpdateErrors = Dict.empty
                                       }
                                     , OnInput
                                     )
 
-                                Err message ->
+                                Err listErrors ->
                                     ( { model
                                         | editableJsonValue = v
                                         , jsonValue = vv
-                                        , valueUpdateErrors = model.valueUpdateErrors |> Dict.insert path message
+                                        , valueUpdateErrors = addErrors listErrors
                                       }
                                     , OnInput
                                     )
@@ -394,7 +421,7 @@ view id model =
                 []
 
 
-form : String -> Dict String String -> ( String, Int ) -> String -> String -> EditableJsonValue -> List String -> View
+form : String -> Dict (List String) (List String) -> ( String, Int ) -> String -> String -> EditableJsonValue -> List String -> View
 form id valueUpdateErrors editPropertyName editPath editValue val path =
     let
         ( editPropPath, editIndex ) =
@@ -481,24 +508,25 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                         |> Element.textArea JsonEditor
                             [ onInput <| ValueChange newPointer
                             , onBlur <| StopEditing ""
-                            , Attributes.width <| fill 1
                             , editValue
                                 |> String.split "\n"
                                 |> List.length
                                 |> (+) 1
                                 |> Attributes.rows
-                            , inlineStyle [ ( "margin-left", "4ch" ) ]
+                            , inlineStyle [ ( "margin-left", "4ch" ), ( "width", "calc(100% - 4ch)" ) ]
                             , Attributes.tabindex 0
                             , Attributes.id valId
                             ]
                         |> Element.el None []
-                        |> Element.below
-                            [ valueUpdateErrors
-                                |> Dict.get newPointer
-                                |> Maybe.map (text >> (el InlineError []))
-                                |> Maybe.withDefault empty
-                            ]
 
+                {-
+                   |> Element.below
+                       [ valueUpdateErrors
+                           |> Dict.get newPath
+                           |> Maybe.map (text >> (el InlineError []))
+                           |> Maybe.withDefault empty
+                       ]
+                -}
                 editForm _ =
                     editValue
                         |> Element.inputText JsonEditor
@@ -511,13 +539,15 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
                             ]
                         |> Element.el None
                             [ inlineStyle [ ( "display", "inline-block" ) ] ]
-                        |> Element.below
-                            [ valueUpdateErrors
-                                |> Dict.get newPointer
-                                |> Maybe.map (text >> (el InlineError []))
-                                |> Maybe.withDefault empty
-                            ]
 
+                {-
+                   |> Element.below
+                       [ valueUpdateErrors
+                           |> Dict.get newPath
+                           |> Maybe.map (text >> (el InlineError []))
+                           |> Maybe.withDefault empty
+                       ]
+                -}
                 editable s =
                     if isEditing then
                         editForm 1
@@ -742,6 +772,11 @@ form id valueUpdateErrors editPropertyName editPath editValue val path =
 
                     _ ->
                         empty
+                , valueUpdateErrors
+                    |> Dict.get newPath
+                    |> Maybe.map (String.join ", " >> text >> (el InlineError []))
+                    |> Maybe.withDefault empty
+                    |> el None [ inlineStyle [ ( "padding-left", "4ch" ) ] ]
                 ]
 
         walkValue v path =
