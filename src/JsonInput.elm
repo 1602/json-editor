@@ -272,6 +272,9 @@ stringifyError e =
         AlwaysFail ->
             "This is not expected to succeed"
 
+        UnresolvableReference ref ->
+            "Reference " ++ (toString ref) ++ " can not be resolved"
+
 
 updateValue : Model -> String -> Result String EditableJsonValue -> ( Model, ExternalMsg )
 updateValue model path newStuff =
