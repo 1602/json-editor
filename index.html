@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <script src="elm-min.js"></script>
+    <script src="elm.js"></script>
     <script>
 let initValue = null;
 
@@ -24,7 +24,7 @@ try {
     initValue = {};
 }
 
-const elm = Elm.JsonEditor.fullscreen(initValue);
+const elm = Elm.JsonEditorApp.fullscreen(initValue);
 
 elm.ports.select.subscribe(id => {
     setTimeout(() => {
