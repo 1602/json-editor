@@ -9,7 +9,8 @@
   "scripts": {
     "start": "elm-live src/JsonEditorApp.elm --output=elm.js --open",
     "test": "elm-test tests/Tests.elm --watch",
-    "deploy": "elm-make src/JsonEditorApp.elm --yes --output=dist/elm.js && uglifyjs dist/elm.js > dist/elm-min.js && gh-pages -d dist -a"
+    "build": "./build.sh",
+    "deploy": "gh-pages -d dist -a"
   },
   "devDependencies": {
     "elm": "^0.18.0",
