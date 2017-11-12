@@ -5757,29 +5757,50 @@ var _elm_lang$core$Platform$Task = {ctor: 'Task'};
 var _elm_lang$core$Platform$ProcessId = {ctor: 'ProcessId'};
 var _elm_lang$core$Platform$Router = {ctor: 'Router'};
 
+var _1602$json_schema$Util$indexOfFirstDuplicate = function (list) {
+	return function (_p0) {
+		var _p1 = _p0;
+		return _p1._1;
+	}(
+		A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (x, _p2) {
+					var _p3 = _p2;
+					var _p6 = _p3._2;
+					var _p5 = _p3._1;
+					var _p4 = _p3._0;
+					return {
+						ctor: '_Tuple3',
+						_0: _p4 + 1,
+						_1: (_elm_lang$core$Native_Utils.cmp(_p5, -1) > 0) ? _p5 : (A2(_elm_lang$core$List$member, x, _p6) ? _p4 : -1),
+						_2: A2(_elm_lang$core$List$drop, 1, _p6)
+					};
+				}),
+			{
+				ctor: '_Tuple3',
+				_0: 0,
+				_1: -1,
+				_2: A2(_elm_lang$core$List$drop, 1, list)
+			},
+			list));
+};
 var _1602$json_schema$Util$isUnique = function (list) {
-	var _p0 = list;
-	if (_p0.ctor === '::') {
-		var _p1 = _p0._1;
-		return function (x) {
-			return x && _1602$json_schema$Util$isUnique(_p1);
-		}(
-			!A2(_elm_lang$core$List$member, _p0._0, _p1));
-	} else {
-		return true;
-	}
+	return _elm_lang$core$Native_Utils.eq(
+		_1602$json_schema$Util$indexOfFirstDuplicate(list),
+		-1);
 };
 var _1602$json_schema$Util$getAt = function (index) {
-	return function (_p2) {
+	return function (_p7) {
 		return _elm_lang$core$List$head(
-			A2(_elm_lang$core$List$drop, index, _p2));
+			A2(_elm_lang$core$List$drop, index, _p7));
 	};
 };
 var _1602$json_schema$Util$uncons = function (l) {
-	var _p3 = l;
-	if (_p3.ctor === '::') {
+	var _p8 = l;
+	if (_p8.ctor === '::') {
 		return _elm_lang$core$Maybe$Just(
-			{ctor: '_Tuple2', _0: _p3._0, _1: _p3._1});
+			{ctor: '_Tuple2', _0: _p8._0, _1: _p8._1});
 	} else {
 		return _elm_lang$core$Maybe$Nothing;
 	}
@@ -5787,17 +5808,17 @@ var _1602$json_schema$Util$uncons = function (l) {
 var _1602$json_schema$Util$isInt = function (x) {
 	return _elm_lang$core$Native_Utils.eq(
 		x,
-		function (_p4) {
+		function (_p9) {
 			return _elm_lang$core$Basics$toFloat(
-				_elm_lang$core$Basics$round(_p4));
+				_elm_lang$core$Basics$round(_p9));
 		}(x));
 };
 var _1602$json_schema$Util$resultToDecoder = function (res) {
-	var _p5 = res;
-	if (_p5.ctor === 'Ok') {
-		return _elm_lang$core$Json_Decode$succeed(_p5._0);
+	var _p10 = res;
+	if (_p10.ctor === 'Ok') {
+		return _elm_lang$core$Json_Decode$succeed(_p10._0);
 	} else {
-		return _elm_lang$core$Json_Decode$fail(_p5._0);
+		return _elm_lang$core$Json_Decode$fail(_p10._0);
 	}
 };
 var _1602$json_schema$Util$foldResults = function (results) {
@@ -7028,14 +7049,14 @@ var _1602$json_schema$Json_Schema_Validation$Error = F2(
 		return {jsonPath: a, error: b};
 	});
 var _1602$json_schema$Json_Schema_Validation$AlwaysFail = {ctor: 'AlwaysFail'};
-var _1602$json_schema$Json_Schema_Validation$UnresolvableReference = {ctor: 'UnresolvableReference'};
-var _1602$json_schema$Json_Schema_Validation$Ref = {ctor: 'Ref'};
+var _1602$json_schema$Json_Schema_Validation$UnresolvableReference = function (a) {
+	return {ctor: 'UnresolvableReference', _0: a};
+};
 var _1602$json_schema$Json_Schema_Validation$Not = {ctor: 'Not'};
 var _1602$json_schema$Json_Schema_Validation$OneOfManySucceed = function (a) {
 	return {ctor: 'OneOfManySucceed', _0: a};
 };
 var _1602$json_schema$Json_Schema_Validation$OneOfNoneSucceed = {ctor: 'OneOfNoneSucceed'};
-var _1602$json_schema$Json_Schema_Validation$AnyOf = {ctor: 'AnyOf'};
 var _1602$json_schema$Json_Schema_Validation$InvalidType = function (a) {
 	return {ctor: 'InvalidType', _0: a};
 };
@@ -7044,7 +7065,9 @@ var _1602$json_schema$Json_Schema_Validation$Enum = {ctor: 'Enum'};
 var _1602$json_schema$Json_Schema_Validation$InvalidPropertyName = function (a) {
 	return {ctor: 'InvalidPropertyName', _0: a};
 };
-var _1602$json_schema$Json_Schema_Validation$AdditionalPropertiesDisallowed = {ctor: 'AdditionalPropertiesDisallowed'};
+var _1602$json_schema$Json_Schema_Validation$AdditionalPropertiesDisallowed = function (a) {
+	return {ctor: 'AdditionalPropertiesDisallowed', _0: a};
+};
 var _1602$json_schema$Json_Schema_Validation$Required = function (a) {
 	return {ctor: 'Required', _0: a};
 };
@@ -7057,7 +7080,9 @@ var _1602$json_schema$Json_Schema_Validation$MaxProperties = F2(
 		return {ctor: 'MaxProperties', _0: a, _1: b};
 	});
 var _1602$json_schema$Json_Schema_Validation$Contains = {ctor: 'Contains'};
-var _1602$json_schema$Json_Schema_Validation$UniqueItems = {ctor: 'UniqueItems'};
+var _1602$json_schema$Json_Schema_Validation$UniqueItems = function (a) {
+	return {ctor: 'UniqueItems', _0: a};
+};
 var _1602$json_schema$Json_Schema_Validation$MinItems = F2(
 	function (a, b) {
 		return {ctor: 'MinItems', _0: a, _1: b};
@@ -7138,9 +7163,16 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 					return _elm_lang$core$Result$Ok(value);
 				}
 			});
-		var isUniqueItems = function (list) {
-			return _1602$json_schema$Util$isUnique(
-				A2(_elm_lang$core$List$map, _elm_lang$core$Basics$toString, list));
+		var findDuplicateItem = function (list) {
+			return function (x) {
+				return _elm_lang$core$Native_Utils.eq(x, -1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$List$head(
+					A2(_elm_lang$core$List$drop, x, list));
+			}(
+				_1602$json_schema$Util$indexOfFirstDuplicate(
+					A2(
+						_elm_lang$core$List$map,
+						_elm_lang$core$Json_Encode$encode(0),
+						list)));
 		};
 		var getPropsByPattern = F2(
 			function (pattern, props) {
@@ -7377,12 +7409,24 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 				_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value),
 				F2(
 					function (uniqueItems, list) {
-						return ((!uniqueItems) || isUniqueItems(list)) ? _elm_lang$core$Result$Ok(true) : _elm_lang$core$Result$Err(
-							{
-								ctor: '::',
-								_0: A2(_1602$json_schema$Json_Schema_Validation$Error, jsonPath, _1602$json_schema$Json_Schema_Validation$UniqueItems),
-								_1: {ctor: '[]'}
-							});
+						if (!uniqueItems) {
+							return _elm_lang$core$Result$Ok(true);
+						} else {
+							var _p23 = findDuplicateItem(list);
+							if (_p23.ctor === 'Just') {
+								return _elm_lang$core$Result$Err(
+									{
+										ctor: '::',
+										_0: A2(
+											_1602$json_schema$Json_Schema_Validation$Error,
+											jsonPath,
+											_1602$json_schema$Json_Schema_Validation$UniqueItems(_p23._0)),
+										_1: {ctor: '[]'}
+									});
+							} else {
+								return _elm_lang$core$Result$Ok(true);
+							}
+						}
 					}));
 		};
 		var validateMinItems = function (jsonPath) {
@@ -7596,30 +7640,30 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 		};
 		var failWithListErrors = F4(
 			function (jsonPath, value, schema, validators) {
-				return function (_p23) {
-					var _p24 = _p23;
-					var _p25 = _p24._0;
-					if (_p25.ctor === '[]') {
-						return _elm_lang$core$Result$Ok(_p24._1);
+				return function (_p24) {
+					var _p25 = _p24;
+					var _p26 = _p25._0;
+					if (_p26.ctor === '[]') {
+						return _elm_lang$core$Result$Ok(_p25._1);
 					} else {
-						return _elm_lang$core$Result$Err(_p25);
+						return _elm_lang$core$Result$Err(_p26);
 					}
 				}(
 					A3(
 						_elm_lang$core$List$foldl,
 						F2(
-							function (fn, _p26) {
-								var _p27 = _p26;
-								var _p30 = _p27._1;
-								var _p29 = _p27._0;
-								var _p28 = A3(fn, jsonPath, _p30, schema);
-								if (_p28.ctor === 'Ok') {
-									return {ctor: '_Tuple2', _0: _p29, _1: _p28._0};
+							function (fn, _p27) {
+								var _p28 = _p27;
+								var _p31 = _p28._1;
+								var _p30 = _p28._0;
+								var _p29 = A3(fn, jsonPath, _p31, schema);
+								if (_p29.ctor === 'Ok') {
+									return {ctor: '_Tuple2', _0: _p30, _1: _p29._0};
 								} else {
 									return {
 										ctor: '_Tuple2',
-										_0: A2(_elm_lang$core$Basics_ops['++'], _p29, _p28._0),
-										_1: _p30
+										_0: A2(_elm_lang$core$Basics_ops['++'], _p30, _p29._0),
+										_1: _p31
 									};
 								}
 							}),
@@ -7640,31 +7684,34 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 				_elm_lang$core$Json_Decode$value,
 				F2(
 					function (ref, val) {
-						return A2(
-							_elm_lang$core$Result$andThen,
-							A2(validateSchema, jsonPath, val),
-							A2(
-								_elm_lang$core$Result$fromMaybe,
+						var _p32 = A2(_1602$json_schema$Ref$resolveReference, rootSchema, ref);
+						if (_p32.ctor === 'Just') {
+							return A3(validateSchema, jsonPath, val, _p32._0);
+						} else {
+							return _elm_lang$core$Result$Err(
 								{
 									ctor: '::',
-									_0: A2(_1602$json_schema$Json_Schema_Validation$Error, jsonPath, _1602$json_schema$Json_Schema_Validation$UnresolvableReference),
+									_0: A2(
+										_1602$json_schema$Json_Schema_Validation$Error,
+										jsonPath,
+										_1602$json_schema$Json_Schema_Validation$UnresolvableReference(ref)),
 									_1: {ctor: '[]'}
-								},
-								A2(_1602$json_schema$Ref$resolveReference, rootSchema, ref)));
+								});
+						}
 					}));
 		};
 		var validateSchema = F3(
 			function (jsonPath, value, s) {
-				var _p31 = s;
-				if (_p31.ctor === 'BooleanSchema') {
-					return _p31._0 ? _elm_lang$core$Result$Ok(value) : _elm_lang$core$Result$Err(
+				var _p33 = s;
+				if (_p33.ctor === 'BooleanSchema') {
+					return _p33._0 ? _elm_lang$core$Result$Ok(value) : _elm_lang$core$Result$Err(
 						{
 							ctor: '::',
 							_0: A2(_1602$json_schema$Json_Schema_Validation$Error, jsonPath, _1602$json_schema$Json_Schema_Validation$AlwaysFail),
 							_1: {ctor: '[]'}
 						});
 				} else {
-					return A3(validateSubschema, jsonPath, _p31._0, value);
+					return A3(validateSubschema, jsonPath, _p33._0, value);
 				}
 			});
 		var validateSubschema = F3(
@@ -7796,23 +7843,23 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 			function (jsonPath, v, s) {
 				var rejectMatching = F3(
 					function (props, fn, obj) {
-						var _p32 = props;
-						if (_p32.ctor === 'Just') {
+						var _p34 = props;
+						if (_p34.ctor === 'Just') {
 							var keys = A2(
 								_elm_lang$core$List$map,
-								function (_p33) {
-									var _p34 = _p33;
-									return _p34._0;
-								},
-								_p32._0._0);
-							return A2(
-								_elm_lang$core$List$filter,
 								function (_p35) {
 									var _p36 = _p35;
+									return _p36._0;
+								},
+								_p34._0._0);
+							return A2(
+								_elm_lang$core$List$filter,
+								function (_p37) {
+									var _p38 = _p37;
 									return A2(
 										_elm_lang$core$List$any,
 										function (pr) {
-											return !A2(fn, pr, _p36._0);
+											return !A2(fn, pr, _p38._0);
 										},
 										keys);
 								},
@@ -7830,22 +7877,32 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 					F2(
 						function (additionalProperties, obj) {
 							return function (obj) {
-								var _p37 = additionalProperties;
-								if (_p37.ctor === 'BooleanSchema') {
-									return _p37._0 ? _elm_lang$core$Result$Ok(v) : _elm_lang$core$Result$Err(
+								var _p39 = additionalProperties;
+								if (_p39.ctor === 'BooleanSchema') {
+									return _p39._0 ? _elm_lang$core$Result$Ok(v) : (_elm_lang$core$List$isEmpty(obj) ? _elm_lang$core$Result$Ok(v) : _elm_lang$core$Result$Err(
 										{
 											ctor: '::',
-											_0: A2(_1602$json_schema$Json_Schema_Validation$Error, jsonPath, _1602$json_schema$Json_Schema_Validation$AdditionalPropertiesDisallowed),
+											_0: A2(
+												_1602$json_schema$Json_Schema_Validation$Error,
+												jsonPath,
+												_1602$json_schema$Json_Schema_Validation$AdditionalPropertiesDisallowed(
+													A2(
+														_elm_lang$core$List$map,
+														function (_p40) {
+															var _p41 = _p40;
+															return _p41._0;
+														},
+														obj))),
 											_1: {ctor: '[]'}
-										});
+										}));
 								} else {
 									return A2(
 										_1602$json_schema$Json_Schema_Validation$concatErrors,
 										_elm_lang$core$Result$Ok(v),
 										A2(
 											_elm_lang$core$List$map,
-											function (_p38) {
-												var _p39 = _p38;
+											function (_p42) {
+												var _p43 = _p42;
 												return A3(
 													validateSchema,
 													A2(
@@ -7853,10 +7910,10 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 														jsonPath,
 														{
 															ctor: '::',
-															_0: _p39._0,
+															_0: _p43._0,
 															_1: {ctor: '[]'}
 														}),
-													_p39._1,
+													_p43._1,
 													additionalProperties);
 											},
 											obj));
@@ -7914,18 +7971,22 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 				_elm_lang$core$Json_Decode$value,
 				F2(
 					function (anyOf, val) {
-						var validSubschema = function (schema) {
-							return _elm_lang$core$Native_Utils.eq(
-								A3(validateSchema, jsonPath, val, schema),
-								_elm_lang$core$Result$Ok(val));
+						var isOk = function (res) {
+							var _p44 = res;
+							if (_p44.ctor === 'Ok') {
+								return true;
+							} else {
+								return false;
+							}
 						};
-						var isValid = A2(_elm_lang$core$List$any, validSubschema, anyOf);
-						return isValid ? _elm_lang$core$Result$Ok(val) : _elm_lang$core$Result$Err(
-							{
-								ctor: '::',
-								_0: A2(_1602$json_schema$Json_Schema_Validation$Error, jsonPath, _1602$json_schema$Json_Schema_Validation$AnyOf),
-								_1: {ctor: '[]'}
-							});
+						var validationResults = A2(
+							_elm_lang$core$List$map,
+							A2(validateSchema, jsonPath, val),
+							anyOf);
+						return A2(_elm_lang$core$List$any, isOk, validationResults) ? _elm_lang$core$Result$Ok(val) : A2(
+							_1602$json_schema$Json_Schema_Validation$concatErrors,
+							_elm_lang$core$Result$Ok(val),
+							validationResults);
 					}));
 		};
 		var validateContains = F2(
@@ -7941,8 +8002,8 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 							return A2(
 								_elm_lang$core$List$any,
 								function (item) {
-									var _p40 = A3(validateSchema, jsonPath, item, contains);
-									if (_p40.ctor === 'Ok') {
+									var _p45 = A3(validateSchema, jsonPath, item, contains);
+									if (_p45.ctor === 'Ok') {
 										return true;
 									} else {
 										return false;
@@ -7963,17 +8024,17 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 					return A3(
 						_elm_lang$core$List$foldl,
 						F2(
-							function (_p41, res) {
-								var _p42 = _p41;
+							function (_p46, res) {
+								var _p47 = _p46;
 								if (_elm_lang$core$Native_Utils.eq(
 									res,
 									_elm_lang$core$Result$Ok(v)) && A2(
 									_elm_lang$core$Dict$member,
-									_p42._0,
+									_p47._0,
 									_elm_lang$core$Dict$fromList(obj))) {
-									var _p43 = _p42._1;
-									if (_p43.ctor === 'PropSchema') {
-										return A3(validateSchema, jsonPath, v, _p43._0);
+									var _p48 = _p47._1;
+									if (_p48.ctor === 'PropSchema') {
+										return A3(validateSchema, jsonPath, v, _p48._0);
 									} else {
 										return A3(
 											validateSchema,
@@ -7983,7 +8044,7 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 												_elm_lang$core$Native_Utils.update(
 													_1602$json_schema$Json_Schema_Definitions$blankSubSchema,
 													{
-														required: _elm_lang$core$Maybe$Just(_p43._0)
+														required: _elm_lang$core$Maybe$Just(_p48._0)
 													})));
 									}
 								} else {
@@ -7996,12 +8057,12 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 				if (_elm_lang$core$List$isEmpty(s.dependencies)) {
 					return _elm_lang$core$Result$Ok(v);
 				} else {
-					var _p44 = A2(
+					var _p49 = A2(
 						_elm_lang$core$Json_Decode$decodeValue,
 						_elm_lang$core$Json_Decode$keyValuePairs(_elm_lang$core$Json_Decode$value),
 						v);
-					if (_p44.ctor === 'Ok') {
-						return validateDep(_p44._0);
+					if (_p49.ctor === 'Ok') {
+						return validateDep(_p49._0);
 					} else {
 						return _elm_lang$core$Result$Ok(v);
 					}
@@ -8013,7 +8074,7 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 					function (item, schema, index) {
 						return A2(
 							_elm_lang$core$Result$map,
-							function (_p45) {
+							function (_p50) {
 								return index + 1;
 							},
 							A3(
@@ -8029,63 +8090,63 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 								item,
 								schema));
 					});
-				var _p46 = schema.items;
-				switch (_p46.ctor) {
+				var _p51 = schema.items;
+				switch (_p51.ctor) {
 					case 'ItemDefinition':
-						var _p47 = A2(
+						var _p52 = A2(
 							_elm_lang$core$Json_Decode$decodeValue,
 							_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value),
 							value);
-						if (_p47.ctor === 'Ok') {
+						if (_p52.ctor === 'Ok') {
 							return A2(
 								_elm_lang$core$Result$map,
-								function (_p48) {
+								function (_p53) {
 									return value;
 								},
 								A3(
 									_elm_lang$core$List$foldl,
 									F2(
 										function (item, res) {
-											var _p49 = res;
-											if (_p49.ctor === 'Ok') {
-												return A3(validateItem, item, _p46._0, _p49._0);
+											var _p54 = res;
+											if (_p54.ctor === 'Ok') {
+												return A3(validateItem, item, _p51._0, _p54._0);
 											} else {
 												return res;
 											}
 										}),
 									_elm_lang$core$Result$Ok(0),
-									_p47._0));
+									_p52._0));
 						} else {
 							return _elm_lang$core$Result$Ok(value);
 						}
 					case 'ArrayOfItems':
-						var _p50 = A2(
+						var _p55 = A2(
 							_elm_lang$core$Json_Decode$decodeValue,
 							_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value),
 							value);
-						if (_p50.ctor === 'Ok') {
+						if (_p55.ctor === 'Ok') {
 							return A2(
 								_elm_lang$core$Result$map,
-								function (_p51) {
+								function (_p56) {
 									return value;
 								},
 								A3(
 									_elm_lang$core$List$foldl,
 									F2(
 										function (item, res) {
-											var _p52 = res;
-											if (_p52.ctor === 'Ok') {
-												var _p55 = _p52._0;
-												var _p53 = _elm_lang$core$List$head(
-													A2(_elm_lang$core$List$drop, _p55, _p46._0));
-												if (_p53.ctor === 'Just') {
-													return A3(validateItem, item, _p53._0, _p55);
+											var _p57 = res;
+											if (_p57.ctor === 'Ok') {
+												var _p60 = _p57._0;
+												var _p58 = _elm_lang$core$List$head(
+													A2(_elm_lang$core$List$drop, _p60, _p51._0));
+												if (_p58.ctor === 'Just') {
+													return A3(validateItem, item, _p58._0, _p60);
 												} else {
-													var _p54 = schema.additionalItems;
-													if (_p54.ctor === 'Just') {
-														return A3(validateItem, item, _p54._0, _p55);
+													var _p59 = schema.additionalItems;
+													if (_p59.ctor === 'Just') {
+														return A3(validateItem, item, _p59._0, _p60);
 													} else {
-														return _elm_lang$core$Result$Ok(_p55 + 1);
+														return _elm_lang$core$Result$Ok(_p60 + 1);
 													}
 												}
 											} else {
@@ -8093,7 +8154,7 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 											}
 										}),
 									_elm_lang$core$Result$Ok(0),
-									_p50._0));
+									_p55._0));
 						} else {
 							return _elm_lang$core$Result$Ok(value);
 						}
@@ -8134,9 +8195,9 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 								A3(validateSchema, jsonPath, val, schema),
 								_elm_lang$core$Result$Ok(val));
 						};
-						var _p56 = _elm_lang$core$List$length(
+						var _p61 = _elm_lang$core$List$length(
 							A2(_elm_lang$core$List$filter, validSubschema, oneOf));
-						switch (_p56) {
+						switch (_p61) {
 							case 1:
 								return _elm_lang$core$Result$Ok(val);
 							case 0:
@@ -8153,7 +8214,7 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 										_0: A2(
 											_1602$json_schema$Json_Schema_Validation$Error,
 											jsonPath,
-											_1602$json_schema$Json_Schema_Validation$OneOfManySucceed(_p56)),
+											_1602$json_schema$Json_Schema_Validation$OneOfManySucceed(_p61)),
 										_1: {ctor: '[]'}
 									});
 						}
@@ -8168,20 +8229,20 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 					},
 					_elm_lang$core$Json_Decode$keyValuePairs(_elm_lang$core$Json_Decode$value),
 					F2(
-						function (_p57, obj) {
-							var _p58 = _p57;
+						function (_p62, obj) {
+							var _p63 = _p62;
 							return A3(
 								_elm_lang$core$List$foldl,
 								F2(
-									function (_p59, res) {
-										var _p60 = _p59;
+									function (_p64, res) {
+										var _p65 = _p64;
 										return _elm_lang$core$Native_Utils.eq(
 											res,
 											_elm_lang$core$Result$Ok(v)) ? A3(
 											_elm_lang$core$List$foldl,
 											F2(
-												function (_p61, res) {
-													var _p62 = _p61;
+												function (_p66, res) {
+													var _p67 = _p66;
 													return _elm_lang$core$Native_Utils.eq(
 														res,
 														_elm_lang$core$Result$Ok(v)) ? A3(
@@ -8191,17 +8252,17 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 															jsonPath,
 															{
 																ctor: '::',
-																_0: _p62._0,
+																_0: _p67._0,
 																_1: {ctor: '[]'}
 															}),
-														_p62._1,
-														_p60._1) : res;
+														_p67._1,
+														_p65._1) : res;
 												}),
 											_elm_lang$core$Result$Ok(v),
-											A2(getPropsByPattern, _p60._0, obj)) : res;
+											A2(getPropsByPattern, _p65._0, obj)) : res;
 									}),
 								_elm_lang$core$Result$Ok(v),
-								_p58._0);
+								_p63._0);
 						}),
 					v);
 			});
@@ -8220,12 +8281,12 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 								_elm_lang$core$Result$Ok(v),
 								A2(
 									_elm_lang$core$List$map,
-									function (_p63) {
-										var _p64 = _p63;
-										var _p67 = _p64._1;
-										var _p66 = _p64._0;
-										var _p65 = A2(getSchema, _p66, properties);
-										if (_p65.ctor === 'Just') {
+									function (_p68) {
+										var _p69 = _p68;
+										var _p72 = _p69._1;
+										var _p71 = _p69._0;
+										var _p70 = A2(getSchema, _p71, properties);
+										if (_p70.ctor === 'Just') {
 											return A3(
 												validateSchema,
 												A2(
@@ -8233,13 +8294,13 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 													jsonPath,
 													{
 														ctor: '::',
-														_0: _p66,
+														_0: _p71,
 														_1: {ctor: '[]'}
 													}),
-												_p67,
-												_p65._0);
+												_p72,
+												_p70._0);
 										} else {
-											return _elm_lang$core$Result$Ok(_p67);
+											return _elm_lang$core$Result$Ok(_p72);
 										}
 									},
 									_elm_lang$core$List$reverse(obj)));
@@ -8250,7 +8311,7 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 			function (jsonPath, v) {
 				var validatePropertyName = F2(
 					function (schema, key) {
-						var _p68 = A3(
+						var _p73 = A3(
 							validateSchema,
 							A2(
 								_elm_lang$core$Basics_ops['++'],
@@ -8262,10 +8323,10 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 								}),
 							_elm_lang$core$Json_Encode$string(key),
 							schema);
-						if (_p68.ctor === 'Ok') {
+						if (_p73.ctor === 'Ok') {
 							return _elm_lang$core$Maybe$Nothing;
 						} else {
-							return _elm_lang$core$Maybe$Just(_p68._0);
+							return _elm_lang$core$Maybe$Just(_p73._0);
 						}
 					});
 				return A4(
@@ -8293,9 +8354,9 @@ var _1602$json_schema$Json_Schema_Validation$validate = F2(
 									validatePropertyName(propertyNames),
 									A2(
 										_elm_lang$core$List$map,
-										function (_p69) {
-											var _p70 = _p69;
-											return _p70._0;
+										function (_p74) {
+											var _p75 = _p74;
+											return _p75._0;
 										},
 										obj)));
 						}),
@@ -27245,9 +27306,9 @@ var _user$project$JsonInput$makeValidSchema = F2(
 					function (_p3) {
 						return {ctor: '[]'};
 					},
-					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Json_Schema_Definitions$decoder, _p2));
+					A2(_elm_lang$core$Json_Decode$decodeValue, _1602$json_schema$Json_Schema_Definitions$decoder, _p2));
 			},
-			A2(_user$project$Json_Schema$validateValue, val, schema));
+			A2(_1602$json_schema$Json_Schema$validateValue, val, schema));
 	});
 var _user$project$JsonInput$deletePath = F3(
 	function (model, isChecked, path) {
@@ -28461,22 +28522,22 @@ var _user$project$JsonInput$view = F2(
 
 var _user$project$SchemaExamples$bookingSchema = A2(
 	_elm_lang$core$Result$withDefault,
-	_user$project$Json_Schema_Definitions$blankSchema,
-	_user$project$Json_Schema_Builder$toSchema(
+	_1602$json_schema$Json_Schema_Definitions$blankSchema,
+	_1602$json_schema$Json_Schema_Builder$toSchema(
 		A2(
-			_user$project$Json_Schema_Builder$withAdditionalProperties,
-			_user$project$Json_Schema_Builder$boolSchema(false),
+			_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+			_1602$json_schema$Json_Schema_Builder$boolSchema(false),
 			A2(
-				_user$project$Json_Schema_Builder$withProperties,
+				_1602$json_schema$Json_Schema_Builder$withProperties,
 				{
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'url',
 						_1: A2(
-							_user$project$Json_Schema_Builder$withFormat,
+							_1602$json_schema$Json_Schema_Builder$withFormat,
 							'uri',
-							A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+							A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 					},
 					_1: {
 						ctor: '::',
@@ -28484,16 +28545,16 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 							ctor: '_Tuple2',
 							_0: 'account',
 							_1: A2(
-								_user$project$Json_Schema_Builder$withProperties,
+								_1602$json_schema$Json_Schema_Builder$withProperties,
 								{
 									ctor: '::',
 									_0: {
 										ctor: '_Tuple2',
 										_0: 'email',
 										_1: A2(
-											_user$project$Json_Schema_Builder$withFormat,
+											_1602$json_schema$Json_Schema_Builder$withFormat,
 											'email',
-											A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+											A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 									},
 									_1: {
 										ctor: '::',
@@ -28501,16 +28562,16 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 											ctor: '_Tuple2',
 											_0: 'password',
 											_1: A2(
-												_user$project$Json_Schema_Builder$withFormat,
+												_1602$json_schema$Json_Schema_Builder$withFormat,
 												'string',
-												A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 										},
 										_1: {
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
 												_0: 'phone',
-												_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/phone', _user$project$Json_Schema_Builder$buildSchema)
+												_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/phone', _1602$json_schema$Json_Schema_Builder$buildSchema)
 											},
 											_1: {
 												ctor: '::',
@@ -28518,7 +28579,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 													ctor: '_Tuple2',
 													_0: 'isExisting',
 													_1: A2(
-														_user$project$Json_Schema_Builder$withEnum,
+														_1602$json_schema$Json_Schema_Builder$withEnum,
 														A2(
 															_elm_lang$core$List$map,
 															_elm_lang$core$Json_Encode$bool,
@@ -28531,7 +28592,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																	_1: {ctor: '[]'}
 																}
 															}),
-														A2(_user$project$Json_Schema_Builder$withType, 'boolean', _user$project$Json_Schema_Builder$buildSchema))
+														A2(_1602$json_schema$Json_Schema_Builder$withType, 'boolean', _1602$json_schema$Json_Schema_Builder$buildSchema))
 												},
 												_1: {ctor: '[]'}
 											}
@@ -28539,7 +28600,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 									}
 								},
 								A2(
-									_user$project$Json_Schema_Builder$withRequired,
+									_1602$json_schema$Json_Schema_Builder$withRequired,
 									{
 										ctor: '::',
 										_0: 'email',
@@ -28553,7 +28614,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 											}
 										}
 									},
-									A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+									A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 						},
 						_1: {
 							ctor: '::',
@@ -28561,23 +28622,23 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 								ctor: '_Tuple2',
 								_0: 'flight',
 								_1: A2(
-									_user$project$Json_Schema_Builder$withAdditionalProperties,
-									_user$project$Json_Schema_Builder$boolSchema(true),
+									_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+									_1602$json_schema$Json_Schema_Builder$boolSchema(true),
 									A2(
-										_user$project$Json_Schema_Builder$withProperties,
+										_1602$json_schema$Json_Schema_Builder$withProperties,
 										{
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
 												_0: 'from',
-												_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/datePlace', _user$project$Json_Schema_Builder$buildSchema)
+												_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/datePlace', _1602$json_schema$Json_Schema_Builder$buildSchema)
 											},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
 													_0: 'to',
-													_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/datePlace', _user$project$Json_Schema_Builder$buildSchema)
+													_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/datePlace', _1602$json_schema$Json_Schema_Builder$buildSchema)
 												},
 												_1: {
 													ctor: '::',
@@ -28585,26 +28646,26 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														ctor: '_Tuple2',
 														_0: 'return',
 														_1: A2(
-															_user$project$Json_Schema_Builder$withProperties,
+															_1602$json_schema$Json_Schema_Builder$withProperties,
 															{
 																ctor: '::',
 																_0: {
 																	ctor: '_Tuple2',
 																	_0: 'from',
-																	_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/datePlace', _user$project$Json_Schema_Builder$buildSchema)
+																	_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/datePlace', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																},
 																_1: {
 																	ctor: '::',
 																	_0: {
 																		ctor: '_Tuple2',
 																		_0: 'to',
-																		_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/datePlace', _user$project$Json_Schema_Builder$buildSchema)
+																		_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/datePlace', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																	},
 																	_1: {ctor: '[]'}
 																}
 															},
 															A2(
-																_user$project$Json_Schema_Builder$withRequired,
+																_1602$json_schema$Json_Schema_Builder$withRequired,
 																{
 																	ctor: '::',
 																	_0: 'from',
@@ -28614,14 +28675,14 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																		_1: {ctor: '[]'}
 																	}
 																},
-																A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+																A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 													},
 													_1: {
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
 															_0: 'price',
-															_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/price', _user$project$Json_Schema_Builder$buildSchema)
+															_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/price', _1602$json_schema$Json_Schema_Builder$buildSchema)
 														},
 														_1: {
 															ctor: '::',
@@ -28629,7 +28690,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																ctor: '_Tuple2',
 																_0: 'cabinClass',
 																_1: A2(
-																	_user$project$Json_Schema_Builder$withEnum,
+																	_1602$json_schema$Json_Schema_Builder$withEnum,
 																	A2(
 																		_elm_lang$core$List$map,
 																		_elm_lang$core$Json_Encode$string,
@@ -28650,7 +28711,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																				}
 																			}
 																		}),
-																	A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																	A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 															},
 															_1: {ctor: '[]'}
 														}
@@ -28659,7 +28720,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 											}
 										},
 										A2(
-											_user$project$Json_Schema_Builder$withRequired,
+											_1602$json_schema$Json_Schema_Builder$withRequired,
 											{
 												ctor: '::',
 												_0: 'cabinClass',
@@ -28677,7 +28738,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 													}
 												}
 											},
-											A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))))
+											A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 							},
 							_1: {
 								ctor: '::',
@@ -28685,22 +28746,22 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 									ctor: '_Tuple2',
 									_0: 'passengers',
 									_1: A2(
-										_user$project$Json_Schema_Builder$withMinItems,
+										_1602$json_schema$Json_Schema_Builder$withMinItems,
 										1,
 										A2(
-											_user$project$Json_Schema_Builder$withMaxItems,
+											_1602$json_schema$Json_Schema_Builder$withMaxItems,
 											1,
 											A2(
-												_user$project$Json_Schema_Builder$withItem,
+												_1602$json_schema$Json_Schema_Builder$withItem,
 												A2(
-													_user$project$Json_Schema_Builder$withProperties,
+													_1602$json_schema$Json_Schema_Builder$withProperties,
 													{
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
 															_0: 'title',
 															_1: A2(
-																_user$project$Json_Schema_Builder$withEnum,
+																_1602$json_schema$Json_Schema_Builder$withEnum,
 																A2(
 																	_elm_lang$core$List$map,
 																	_elm_lang$core$Json_Encode$string,
@@ -28721,21 +28782,21 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																			}
 																		}
 																	}),
-																_user$project$Json_Schema_Builder$buildSchema)
+																_1602$json_schema$Json_Schema_Builder$buildSchema)
 														},
 														_1: {
 															ctor: '::',
 															_0: {
 																ctor: '_Tuple2',
 																_0: 'firstName',
-																_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 															},
 															_1: {
 																ctor: '::',
 																_0: {
 																	ctor: '_Tuple2',
 																	_0: 'lastName',
-																	_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																	_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																},
 																_1: {
 																	ctor: '::',
@@ -28743,9 +28804,9 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																		ctor: '_Tuple2',
 																		_0: 'dateOfBirth',
 																		_1: A2(
-																			_user$project$Json_Schema_Builder$withFormat,
+																			_1602$json_schema$Json_Schema_Builder$withFormat,
 																			'date',
-																			A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																			A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																	},
 																	_1: {
 																		ctor: '::',
@@ -28753,7 +28814,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																			ctor: '_Tuple2',
 																			_0: 'hasHoldLuggage',
 																			_1: A2(
-																				_user$project$Json_Schema_Builder$withEnum,
+																				_1602$json_schema$Json_Schema_Builder$withEnum,
 																				A2(
 																					_elm_lang$core$List$map,
 																					_elm_lang$core$Json_Encode$bool,
@@ -28766,7 +28827,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																							_1: {ctor: '[]'}
 																						}
 																					}),
-																				A2(_user$project$Json_Schema_Builder$withType, 'boolean', _user$project$Json_Schema_Builder$buildSchema))
+																				A2(_1602$json_schema$Json_Schema_Builder$withType, 'boolean', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																		},
 																		_1: {
 																			ctor: '::',
@@ -28774,20 +28835,20 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																				ctor: '_Tuple2',
 																				_0: 'id',
 																				_1: A2(
-																					_user$project$Json_Schema_Builder$withProperties,
+																					_1602$json_schema$Json_Schema_Builder$withProperties,
 																					{
 																						ctor: '::',
 																						_0: {
 																							ctor: '_Tuple2',
 																							_0: 'type',
-																							_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																							_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																						},
 																						_1: {
 																							ctor: '::',
 																							_0: {
 																								ctor: '_Tuple2',
 																								_0: 'number',
-																								_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																								_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																							},
 																							_1: {
 																								ctor: '::',
@@ -28795,23 +28856,23 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																									ctor: '_Tuple2',
 																									_0: 'expDate',
 																									_1: A2(
-																										_user$project$Json_Schema_Builder$withFormat,
+																										_1602$json_schema$Json_Schema_Builder$withFormat,
 																										'date',
-																										A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																										A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																								},
 																								_1: {
 																									ctor: '::',
 																									_0: {
 																										ctor: '_Tuple2',
 																										_0: 'countryCode',
-																										_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/countryCode', _user$project$Json_Schema_Builder$buildSchema)
+																										_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/countryCode', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																									},
 																									_1: {ctor: '[]'}
 																								}
 																							}
 																						}
 																					},
-																					A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))
+																					A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																			},
 																			_1: {ctor: '[]'}
 																		}
@@ -28821,7 +28882,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														}
 													},
 													A2(
-														_user$project$Json_Schema_Builder$withRequired,
+														_1602$json_schema$Json_Schema_Builder$withRequired,
 														{
 															ctor: '::',
 															_0: 'title',
@@ -28843,8 +28904,8 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																}
 															}
 														},
-														A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))),
-												A2(_user$project$Json_Schema_Builder$withType, 'array', _user$project$Json_Schema_Builder$buildSchema))))
+														A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))),
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'array', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 								},
 								_1: {
 									ctor: '::',
@@ -28852,26 +28913,26 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 										ctor: '_Tuple2',
 										_0: 'payment',
 										_1: A2(
-											_user$project$Json_Schema_Builder$withProperties,
+											_1602$json_schema$Json_Schema_Builder$withProperties,
 											{
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
 													_0: 'card',
-													_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/paymentCard', _user$project$Json_Schema_Builder$buildSchema)
+													_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/paymentCard', _1602$json_schema$Json_Schema_Builder$buildSchema)
 												},
 												_1: {
 													ctor: '::',
 													_0: {
 														ctor: '_Tuple2',
 														_0: 'address',
-														_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/personAddress', _user$project$Json_Schema_Builder$buildSchema)
+														_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/personAddress', _1602$json_schema$Json_Schema_Builder$buildSchema)
 													},
 													_1: {ctor: '[]'}
 												}
 											},
 											A2(
-												_user$project$Json_Schema_Builder$withRequired,
+												_1602$json_schema$Json_Schema_Builder$withRequired,
 												{
 													ctor: '::',
 													_0: 'card',
@@ -28881,7 +28942,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														_1: {ctor: '[]'}
 													}
 												},
-												A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 									},
 									_1: {ctor: '[]'}
 								}
@@ -28890,7 +28951,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 					}
 				},
 				A2(
-					_user$project$Json_Schema_Builder$withRequired,
+					_1602$json_schema$Json_Schema_Builder$withRequired,
 					{
 						ctor: '::',
 						_0: 'url',
@@ -28913,21 +28974,21 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 						}
 					},
 					A2(
-						_user$project$Json_Schema_Builder$withDefinitions,
+						_1602$json_schema$Json_Schema_Builder$withDefinitions,
 						{
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'basicPerson',
 								_1: A2(
-									_user$project$Json_Schema_Builder$withProperties,
+									_1602$json_schema$Json_Schema_Builder$withProperties,
 									{
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
 											_0: 'title',
 											_1: A2(
-												_user$project$Json_Schema_Builder$withEnum,
+												_1602$json_schema$Json_Schema_Builder$withEnum,
 												A2(
 													_elm_lang$core$List$map,
 													_elm_lang$core$Json_Encode$string,
@@ -28948,28 +29009,28 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 															}
 														}
 													}),
-												_user$project$Json_Schema_Builder$buildSchema)
+												_1602$json_schema$Json_Schema_Builder$buildSchema)
 										},
 										_1: {
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
 												_0: 'firstName',
-												_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+												_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 											},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
 													_0: 'lastName',
-													_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+													_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 												},
 												_1: {ctor: '[]'}
 											}
 										}
 									},
 									A2(
-										_user$project$Json_Schema_Builder$withRequired,
+										_1602$json_schema$Json_Schema_Builder$withRequired,
 										{
 											ctor: '::',
 											_0: 'title',
@@ -28984,12 +29045,12 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 											}
 										},
 										A2(
-											_user$project$Json_Schema_Builder$withDescription,
+											_1602$json_schema$Json_Schema_Builder$withDescription,
 											'Minimal information representing a person',
 											A2(
-												_user$project$Json_Schema_Builder$withTitle,
+												_1602$json_schema$Json_Schema_Builder$withTitle,
 												'Basic Person',
-												A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))))
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))))
 							},
 							_1: {
 								ctor: '::',
@@ -28997,20 +29058,20 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 									ctor: '_Tuple2',
 									_0: 'personAddress',
 									_1: A2(
-										_user$project$Json_Schema_Builder$withAllOf,
+										_1602$json_schema$Json_Schema_Builder$withAllOf,
 										{
 											ctor: '::',
-											_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/basicPerson', _user$project$Json_Schema_Builder$buildSchema),
+											_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/basicPerson', _1602$json_schema$Json_Schema_Builder$buildSchema),
 											_1: {
 												ctor: '::',
-												_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/address', _user$project$Json_Schema_Builder$buildSchema),
+												_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/address', _1602$json_schema$Json_Schema_Builder$buildSchema),
 												_1: {ctor: '[]'}
 											}
 										},
 										A2(
-											_user$project$Json_Schema_Builder$withDescription,
+											_1602$json_schema$Json_Schema_Builder$withDescription,
 											'Weird combination of a person with an address, early days [Selective breeding](https://en.wikipedia.org/wiki/Selective_breeding) experiment.',
-											A2(_user$project$Json_Schema_Builder$withTitle, 'Person+Address', _user$project$Json_Schema_Builder$buildSchema)))
+											A2(_1602$json_schema$Json_Schema_Builder$withTitle, 'Person+Address', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 								},
 								_1: {
 									ctor: '::',
@@ -29018,13 +29079,13 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 										ctor: '_Tuple2',
 										_0: 'phone',
 										_1: A2(
-											_user$project$Json_Schema_Builder$withProperties,
+											_1602$json_schema$Json_Schema_Builder$withProperties,
 											{
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
 													_0: 'countryCode',
-													_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/countryCode', _user$project$Json_Schema_Builder$buildSchema)
+													_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/countryCode', _1602$json_schema$Json_Schema_Builder$buildSchema)
 												},
 												_1: {
 													ctor: '::',
@@ -29032,18 +29093,18 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														ctor: '_Tuple2',
 														_0: 'number',
 														_1: A2(
-															_user$project$Json_Schema_Builder$withMinLength,
+															_1602$json_schema$Json_Schema_Builder$withMinLength,
 															10,
 															A2(
-																_user$project$Json_Schema_Builder$withDescription,
+																_1602$json_schema$Json_Schema_Builder$withDescription,
 																'Mobile phone number (numbers only, excluding country code)',
-																A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)))
+																A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 													},
 													_1: {ctor: '[]'}
 												}
 											},
 											A2(
-												_user$project$Json_Schema_Builder$withRequired,
+												_1602$json_schema$Json_Schema_Builder$withRequired,
 												{
 													ctor: '::',
 													_0: 'countryCode',
@@ -29054,9 +29115,9 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 													}
 												},
 												A2(
-													_user$project$Json_Schema_Builder$withTitle,
+													_1602$json_schema$Json_Schema_Builder$withTitle,
 													'Phone number',
-													A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))))
+													A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 									},
 									_1: {
 										ctor: '::',
@@ -29064,16 +29125,16 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 											ctor: '_Tuple2',
 											_0: 'price',
 											_1: A2(
-												_user$project$Json_Schema_Builder$withAdditionalProperties,
-												_user$project$Json_Schema_Builder$boolSchema(false),
+												_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+												_1602$json_schema$Json_Schema_Builder$boolSchema(false),
 												A2(
-													_user$project$Json_Schema_Builder$withProperties,
+													_1602$json_schema$Json_Schema_Builder$withProperties,
 													{
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
 															_0: 'currencyCode',
-															_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/currencyCode', _user$project$Json_Schema_Builder$buildSchema)
+															_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/currencyCode', _1602$json_schema$Json_Schema_Builder$buildSchema)
 														},
 														_1: {
 															ctor: '::',
@@ -29081,18 +29142,18 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																ctor: '_Tuple2',
 																_0: 'value',
 																_1: A2(
-																	_user$project$Json_Schema_Builder$withMinimum,
+																	_1602$json_schema$Json_Schema_Builder$withMinimum,
 																	0,
 																	A2(
-																		_user$project$Json_Schema_Builder$withDescription,
+																		_1602$json_schema$Json_Schema_Builder$withDescription,
 																		'A positive integer in the smallest currency unit (that is, 100 pence for £1.00)',
-																		A2(_user$project$Json_Schema_Builder$withType, 'integer', _user$project$Json_Schema_Builder$buildSchema)))
+																		A2(_1602$json_schema$Json_Schema_Builder$withType, 'integer', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 															},
 															_1: {ctor: '[]'}
 														}
 													},
 													A2(
-														_user$project$Json_Schema_Builder$withRequired,
+														_1602$json_schema$Json_Schema_Builder$withRequired,
 														{
 															ctor: '::',
 															_0: 'currencyCode',
@@ -29102,7 +29163,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																_1: {ctor: '[]'}
 															}
 														},
-														A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))))
+														A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 										},
 										_1: {
 											ctor: '::',
@@ -29110,14 +29171,14 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 												ctor: '_Tuple2',
 												_0: 'paymentCard',
 												_1: A2(
-													_user$project$Json_Schema_Builder$withProperties,
+													_1602$json_schema$Json_Schema_Builder$withProperties,
 													{
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
 															_0: 'type',
 															_1: A2(
-																_user$project$Json_Schema_Builder$withEnum,
+																_1602$json_schema$Json_Schema_Builder$withEnum,
 																A2(
 																	_elm_lang$core$List$map,
 																	_elm_lang$core$Json_Encode$string,
@@ -29130,7 +29191,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																			_1: {ctor: '[]'}
 																		}
 																	}),
-																A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 														},
 														_1: {
 															ctor: '::',
@@ -29138,7 +29199,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																ctor: '_Tuple2',
 																_0: 'brand',
 																_1: A2(
-																	_user$project$Json_Schema_Builder$withEnum,
+																	_1602$json_schema$Json_Schema_Builder$withEnum,
 																	A2(
 																		_elm_lang$core$List$map,
 																		_elm_lang$core$Json_Encode$string,
@@ -29155,7 +29216,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																				}
 																			}
 																		}),
-																	A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																	A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 															},
 															_1: {
 																ctor: '::',
@@ -29163,9 +29224,9 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																	ctor: '_Tuple2',
 																	_0: 'panToken',
 																	_1: A2(
-																		_user$project$Json_Schema_Builder$withMinLength,
+																		_1602$json_schema$Json_Schema_Builder$withMinLength,
 																		20,
-																		A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																		A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																},
 																_1: {
 																	ctor: '::',
@@ -29173,22 +29234,22 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																		ctor: '_Tuple2',
 																		_0: 'expirationDate',
 																		_1: A2(
-																			_user$project$Json_Schema_Builder$withPattern,
+																			_1602$json_schema$Json_Schema_Builder$withPattern,
 																			'^20[0-9]{2}-(?:0[1-9]|1[0-2])$',
 																			A2(
-																				_user$project$Json_Schema_Builder$withMinLength,
+																				_1602$json_schema$Json_Schema_Builder$withMinLength,
 																				7,
 																				A2(
-																					_user$project$Json_Schema_Builder$withMaxLength,
+																					_1602$json_schema$Json_Schema_Builder$withMaxLength,
 																					7,
-																					A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))))
+																					A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 																	},
 																	_1: {
 																		ctor: '::',
 																		_0: {
 																			ctor: '_Tuple2',
 																			_0: 'name',
-																			_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																			_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																		},
 																		_1: {
 																			ctor: '::',
@@ -29196,12 +29257,12 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																				ctor: '_Tuple2',
 																				_0: 'cvv',
 																				_1: A2(
-																					_user$project$Json_Schema_Builder$withMinLength,
+																					_1602$json_schema$Json_Schema_Builder$withMinLength,
 																					3,
 																					A2(
-																						_user$project$Json_Schema_Builder$withMaxLength,
+																						_1602$json_schema$Json_Schema_Builder$withMaxLength,
 																						4,
-																						A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)))
+																						A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																			},
 																			_1: {ctor: '[]'}
 																		}
@@ -29211,7 +29272,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														}
 													},
 													A2(
-														_user$project$Json_Schema_Builder$withRequired,
+														_1602$json_schema$Json_Schema_Builder$withRequired,
 														{
 															ctor: '::',
 															_0: 'type',
@@ -29234,12 +29295,12 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 															}
 														},
 														A2(
-															_user$project$Json_Schema_Builder$withDescription,
+															_1602$json_schema$Json_Schema_Builder$withDescription,
 															'Note that instead of card number `panToken` must be supplied because of PCI DSS Compliance limitations',
 															A2(
-																_user$project$Json_Schema_Builder$withTitle,
+																_1602$json_schema$Json_Schema_Builder$withTitle,
 																'Payment Card',
-																A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))))
+																A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))))
 											},
 											_1: {
 												ctor: '::',
@@ -29247,19 +29308,19 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 													ctor: '_Tuple2',
 													_0: 'address',
 													_1: A2(
-														_user$project$Json_Schema_Builder$withProperties,
+														_1602$json_schema$Json_Schema_Builder$withProperties,
 														{
 															ctor: '::',
 															_0: {
 																ctor: '_Tuple2',
 																_0: 'line1',
 																_1: A2(
-																	_user$project$Json_Schema_Builder$withDescription,
+																	_1602$json_schema$Json_Schema_Builder$withDescription,
 																	'Street name with house number',
 																	A2(
-																		_user$project$Json_Schema_Builder$withTitle,
+																		_1602$json_schema$Json_Schema_Builder$withTitle,
 																		'Address line 1',
-																		A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)))
+																		A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 															},
 															_1: {
 																ctor: '::',
@@ -29267,33 +29328,33 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																	ctor: '_Tuple2',
 																	_0: 'line2',
 																	_1: A2(
-																		_user$project$Json_Schema_Builder$withDescription,
+																		_1602$json_schema$Json_Schema_Builder$withDescription,
 																		'Additional address info',
 																		A2(
-																			_user$project$Json_Schema_Builder$withTitle,
+																			_1602$json_schema$Json_Schema_Builder$withTitle,
 																			'Address line 2',
-																			A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)))
+																			A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																},
 																_1: {
 																	ctor: '::',
 																	_0: {
 																		ctor: '_Tuple2',
 																		_0: 'city',
-																		_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																		_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																	},
 																	_1: {
 																		ctor: '::',
 																		_0: {
 																			ctor: '_Tuple2',
 																			_0: 'postcode',
-																			_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																			_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																		},
 																		_1: {
 																			ctor: '::',
 																			_0: {
 																				ctor: '_Tuple2',
 																				_0: 'countryCode',
-																				_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/countryCode', _user$project$Json_Schema_Builder$buildSchema)
+																				_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/countryCode', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																			},
 																			_1: {ctor: '[]'}
 																		}
@@ -29302,7 +29363,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 															}
 														},
 														A2(
-															_user$project$Json_Schema_Builder$withRequired,
+															_1602$json_schema$Json_Schema_Builder$withRequired,
 															{
 																ctor: '::',
 																_0: 'line1',
@@ -29320,7 +29381,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																	}
 																}
 															},
-															A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+															A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 												},
 												_1: {
 													ctor: '::',
@@ -29328,7 +29389,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 														ctor: '_Tuple2',
 														_0: 'datePlace',
 														_1: A2(
-															_user$project$Json_Schema_Builder$withRequired,
+															_1602$json_schema$Json_Schema_Builder$withRequired,
 															{
 																ctor: '::',
 																_0: 'dateTime',
@@ -29343,16 +29404,16 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																}
 															},
 															A2(
-																_user$project$Json_Schema_Builder$withPropertyNames,
-																_user$project$Json_Schema_Builder$buildSchema,
+																_1602$json_schema$Json_Schema_Builder$withPropertyNames,
+																_1602$json_schema$Json_Schema_Builder$buildSchema,
 																A2(
-																	_user$project$Json_Schema_Builder$withProperties,
+																	_1602$json_schema$Json_Schema_Builder$withProperties,
 																	{
 																		ctor: '::',
 																		_0: {
 																			ctor: '_Tuple2',
 																			_0: 'countryCode',
-																			_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/countryCode', _user$project$Json_Schema_Builder$buildSchema)
+																			_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/countryCode', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																		},
 																		_1: {
 																			ctor: '::',
@@ -29360,15 +29421,15 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																				ctor: '_Tuple2',
 																				_0: 'dateTime',
 																				_1: A2(
-																					_user$project$Json_Schema_Builder$withPattern,
+																					_1602$json_schema$Json_Schema_Builder$withPattern,
 																					'^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-3][0-9]) [012][0-9]:[0-5][0-9]$',
 																					A2(
-																						_user$project$Json_Schema_Builder$withDescription,
+																						_1602$json_schema$Json_Schema_Builder$withDescription,
 																						'Date and time of flight (airport local time)',
 																						A2(
-																							_user$project$Json_Schema_Builder$withTitle,
+																							_1602$json_schema$Json_Schema_Builder$withTitle,
 																							'Date-Time',
-																							A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))))
+																							A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 																			},
 																			_1: {
 																				ctor: '::',
@@ -29376,27 +29437,27 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																					ctor: '_Tuple2',
 																					_0: 'airportCode',
 																					_1: A2(
-																						_user$project$Json_Schema_Builder$withPattern,
+																						_1602$json_schema$Json_Schema_Builder$withPattern,
 																						'^[A-Z]{3}$',
 																						A2(
-																							_user$project$Json_Schema_Builder$withMinLength,
+																							_1602$json_schema$Json_Schema_Builder$withMinLength,
 																							3,
 																							A2(
-																								_user$project$Json_Schema_Builder$withMaxLength,
+																								_1602$json_schema$Json_Schema_Builder$withMaxLength,
 																								3,
 																								A2(
-																									_user$project$Json_Schema_Builder$withDescription,
+																									_1602$json_schema$Json_Schema_Builder$withDescription,
 																									'International Air Transport Association airport code',
 																									A2(
-																										_user$project$Json_Schema_Builder$withTitle,
+																										_1602$json_schema$Json_Schema_Builder$withTitle,
 																										'Airport Code',
-																										A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))))))
+																										A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))))))
 																				},
 																				_1: {ctor: '[]'}
 																			}
 																		}
 																	},
-																	A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))))
+																	A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))))
 													},
 													_1: {
 														ctor: '::',
@@ -29404,7 +29465,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 															ctor: '_Tuple2',
 															_0: 'currencyCode',
 															_1: A2(
-																_user$project$Json_Schema_Builder$withEnum,
+																_1602$json_schema$Json_Schema_Builder$withEnum,
 																A2(
 																	_elm_lang$core$List$map,
 																	_elm_lang$core$Json_Encode$string,
@@ -29846,15 +29907,15 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																		}
 																	}),
 																A2(
-																	_user$project$Json_Schema_Builder$withMinLength,
+																	_1602$json_schema$Json_Schema_Builder$withMinLength,
 																	3,
 																	A2(
-																		_user$project$Json_Schema_Builder$withMaxLength,
+																		_1602$json_schema$Json_Schema_Builder$withMaxLength,
 																		3,
 																		A2(
-																			_user$project$Json_Schema_Builder$withDescription,
+																			_1602$json_schema$Json_Schema_Builder$withDescription,
 																			'3-letter ISO code representing the currency. __Lowercase__.',
-																			A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)))))
+																			A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)))))
 														},
 														_1: {
 															ctor: '::',
@@ -29862,7 +29923,7 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																ctor: '_Tuple2',
 																_0: 'countryCode',
 																_1: A2(
-																	_user$project$Json_Schema_Builder$withEnum,
+																	_1602$json_schema$Json_Schema_Builder$withEnum,
 																	A2(
 																		_elm_lang$core$List$map,
 																		_elm_lang$core$Json_Encode$string,
@@ -30864,18 +30925,18 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 																			}
 																		}),
 																	A2(
-																		_user$project$Json_Schema_Builder$withMinLength,
+																		_1602$json_schema$Json_Schema_Builder$withMinLength,
 																		2,
 																		A2(
-																			_user$project$Json_Schema_Builder$withMaxLength,
+																			_1602$json_schema$Json_Schema_Builder$withMaxLength,
 																			2,
 																			A2(
-																				_user$project$Json_Schema_Builder$withDescription,
+																				_1602$json_schema$Json_Schema_Builder$withDescription,
 																				'2-letter ISO code representing the country. United Kingdom is officially assigned the alpha-2 code `gb` rather than `uk`. __Lowercase__.',
 																				A2(
-																					_user$project$Json_Schema_Builder$withTitle,
+																					_1602$json_schema$Json_Schema_Builder$withTitle,
 																					'ISO code representing the country',
-																					A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))))))
+																					A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))))))
 															},
 															_1: {ctor: '[]'}
 														}
@@ -30887,22 +30948,22 @@ var _user$project$SchemaExamples$bookingSchema = A2(
 								}
 							}
 						},
-						A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))))));
+						A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))))));
 var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 	_elm_lang$core$Result$withDefault,
-	_user$project$Json_Schema_Definitions$blankSchema,
-	_user$project$Json_Schema_Builder$toSchema(
+	_1602$json_schema$Json_Schema_Definitions$blankSchema,
+	_1602$json_schema$Json_Schema_Builder$toSchema(
 		A2(
-			_user$project$Json_Schema_Builder$withProperties,
+			_1602$json_schema$Json_Schema_Builder$withProperties,
 			{
 				ctor: '::',
 				_0: {
 					ctor: '_Tuple2',
 					_0: '$id',
 					_1: A2(
-						_user$project$Json_Schema_Builder$withFormat,
+						_1602$json_schema$Json_Schema_Builder$withFormat,
 						'uri-reference',
-						A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+						A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 				},
 				_1: {
 					ctor: '::',
@@ -30910,9 +30971,9 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 						ctor: '_Tuple2',
 						_0: '$schema',
 						_1: A2(
-							_user$project$Json_Schema_Builder$withFormat,
+							_1602$json_schema$Json_Schema_Builder$withFormat,
 							'uri',
-							A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+							A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 					},
 					_1: {
 						ctor: '::',
@@ -30920,78 +30981,78 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 							ctor: '_Tuple2',
 							_0: '$ref',
 							_1: A2(
-								_user$project$Json_Schema_Builder$withFormat,
+								_1602$json_schema$Json_Schema_Builder$withFormat,
 								'uri-reference',
-								A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+								A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 						},
 						_1: {
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'title',
-								_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+								_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 							},
 							_1: {
 								ctor: '::',
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'description',
-									_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+									_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 								},
 								_1: {
 									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'default', _1: _user$project$Json_Schema_Builder$buildSchema},
+									_0: {ctor: '_Tuple2', _0: 'default', _1: _1602$json_schema$Json_Schema_Builder$buildSchema},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
 											_0: 'multipleOf',
 											_1: A2(
-												_user$project$Json_Schema_Builder$withExclusiveMinimum,
+												_1602$json_schema$Json_Schema_Builder$withExclusiveMinimum,
 												0,
-												A2(_user$project$Json_Schema_Builder$withType, 'number', _user$project$Json_Schema_Builder$buildSchema))
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'number', _1602$json_schema$Json_Schema_Builder$buildSchema))
 										},
 										_1: {
 											ctor: '::',
 											_0: {
 												ctor: '_Tuple2',
 												_0: 'maximum',
-												_1: A2(_user$project$Json_Schema_Builder$withType, 'number', _user$project$Json_Schema_Builder$buildSchema)
+												_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'number', _1602$json_schema$Json_Schema_Builder$buildSchema)
 											},
 											_1: {
 												ctor: '::',
 												_0: {
 													ctor: '_Tuple2',
 													_0: 'exclusiveMaximum',
-													_1: A2(_user$project$Json_Schema_Builder$withType, 'number', _user$project$Json_Schema_Builder$buildSchema)
+													_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'number', _1602$json_schema$Json_Schema_Builder$buildSchema)
 												},
 												_1: {
 													ctor: '::',
 													_0: {
 														ctor: '_Tuple2',
 														_0: 'minimum',
-														_1: A2(_user$project$Json_Schema_Builder$withType, 'number', _user$project$Json_Schema_Builder$buildSchema)
+														_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'number', _1602$json_schema$Json_Schema_Builder$buildSchema)
 													},
 													_1: {
 														ctor: '::',
 														_0: {
 															ctor: '_Tuple2',
 															_0: 'exclusiveMinimum',
-															_1: A2(_user$project$Json_Schema_Builder$withType, 'number', _user$project$Json_Schema_Builder$buildSchema)
+															_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'number', _1602$json_schema$Json_Schema_Builder$buildSchema)
 														},
 														_1: {
 															ctor: '::',
 															_0: {
 																ctor: '_Tuple2',
 																_0: 'maxLength',
-																_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _user$project$Json_Schema_Builder$buildSchema)
+																_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _1602$json_schema$Json_Schema_Builder$buildSchema)
 															},
 															_1: {
 																ctor: '::',
 																_0: {
 																	ctor: '_Tuple2',
 																	_0: 'minLength',
-																	_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _user$project$Json_Schema_Builder$buildSchema)
+																	_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																},
 																_1: {
 																	ctor: '::',
@@ -30999,16 +31060,16 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																		ctor: '_Tuple2',
 																		_0: 'pattern',
 																		_1: A2(
-																			_user$project$Json_Schema_Builder$withFormat,
+																			_1602$json_schema$Json_Schema_Builder$withFormat,
 																			'regex',
-																			A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema))
+																			A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																	},
 																	_1: {
 																		ctor: '::',
 																		_0: {
 																			ctor: '_Tuple2',
 																			_0: 'additionalItems',
-																			_1: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema)
+																			_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																		},
 																		_1: {
 																			ctor: '::',
@@ -31016,35 +31077,35 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																				ctor: '_Tuple2',
 																				_0: 'items',
 																				_1: A2(
-																					_user$project$Json_Schema_Builder$withAnyOf,
+																					_1602$json_schema$Json_Schema_Builder$withAnyOf,
 																					{
 																						ctor: '::',
-																						_0: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
+																						_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																						_1: {
 																							ctor: '::',
-																							_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _user$project$Json_Schema_Builder$buildSchema),
+																							_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																							_1: {ctor: '[]'}
 																						}
 																					},
 																					A2(
-																						_user$project$Json_Schema_Builder$withDefault,
+																						_1602$json_schema$Json_Schema_Builder$withDefault,
 																						_elm_lang$core$Json_Encode$object(
 																							{ctor: '[]'}),
-																						_user$project$Json_Schema_Builder$buildSchema))
+																						_1602$json_schema$Json_Schema_Builder$buildSchema))
 																			},
 																			_1: {
 																				ctor: '::',
 																				_0: {
 																					ctor: '_Tuple2',
 																					_0: 'maxItems',
-																					_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _user$project$Json_Schema_Builder$buildSchema)
+																					_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																				},
 																				_1: {
 																					ctor: '::',
 																					_0: {
 																						ctor: '_Tuple2',
 																						_0: 'minItems',
-																						_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _user$project$Json_Schema_Builder$buildSchema)
+																						_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																					},
 																					_1: {
 																						ctor: '::',
@@ -31052,44 +31113,44 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																							ctor: '_Tuple2',
 																							_0: 'uniqueItems',
 																							_1: A2(
-																								_user$project$Json_Schema_Builder$withDefault,
+																								_1602$json_schema$Json_Schema_Builder$withDefault,
 																								_elm_lang$core$Json_Encode$bool(false),
-																								A2(_user$project$Json_Schema_Builder$withType, 'boolean', _user$project$Json_Schema_Builder$buildSchema))
+																								A2(_1602$json_schema$Json_Schema_Builder$withType, 'boolean', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																						},
 																						_1: {
 																							ctor: '::',
 																							_0: {
 																								ctor: '_Tuple2',
 																								_0: 'contains',
-																								_1: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema)
+																								_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																							},
 																							_1: {
 																								ctor: '::',
 																								_0: {
 																									ctor: '_Tuple2',
 																									_0: 'maxProperties',
-																									_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _user$project$Json_Schema_Builder$buildSchema)
+																									_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																								},
 																								_1: {
 																									ctor: '::',
 																									_0: {
 																										ctor: '_Tuple2',
 																										_0: 'minProperties',
-																										_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _user$project$Json_Schema_Builder$buildSchema)
+																										_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeIntegerDefault0', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																									},
 																									_1: {
 																										ctor: '::',
 																										_0: {
 																											ctor: '_Tuple2',
 																											_0: 'required',
-																											_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/stringArray', _user$project$Json_Schema_Builder$buildSchema)
+																											_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/stringArray', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																										},
 																										_1: {
 																											ctor: '::',
 																											_0: {
 																												ctor: '_Tuple2',
 																												_0: 'additionalProperties',
-																												_1: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema)
+																												_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																											},
 																											_1: {
 																												ctor: '::',
@@ -31097,13 +31158,13 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																													ctor: '_Tuple2',
 																													_0: 'definitions',
 																													_1: A2(
-																														_user$project$Json_Schema_Builder$withAdditionalProperties,
-																														A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
+																														_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+																														A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																														A2(
-																															_user$project$Json_Schema_Builder$withDefault,
+																															_1602$json_schema$Json_Schema_Builder$withDefault,
 																															_elm_lang$core$Json_Encode$object(
 																																{ctor: '[]'}),
-																															A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+																															A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																												},
 																												_1: {
 																													ctor: '::',
@@ -31111,13 +31172,13 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																														ctor: '_Tuple2',
 																														_0: 'properties',
 																														_1: A2(
-																															_user$project$Json_Schema_Builder$withAdditionalProperties,
-																															A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
+																															_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+																															A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																															A2(
-																																_user$project$Json_Schema_Builder$withDefault,
+																																_1602$json_schema$Json_Schema_Builder$withDefault,
 																																_elm_lang$core$Json_Encode$object(
 																																	{ctor: '[]'}),
-																																A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+																																A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																													},
 																													_1: {
 																														ctor: '::',
@@ -31125,13 +31186,13 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																															ctor: '_Tuple2',
 																															_0: 'patternProperties',
 																															_1: A2(
-																																_user$project$Json_Schema_Builder$withAdditionalProperties,
-																																A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
+																																_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
+																																A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																																A2(
-																																	_user$project$Json_Schema_Builder$withDefault,
+																																	_1602$json_schema$Json_Schema_Builder$withDefault,
 																																	_elm_lang$core$Json_Encode$object(
 																																		{ctor: '[]'}),
-																																	A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema)))
+																																	A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																														},
 																														_1: {
 																															ctor: '::',
@@ -31139,43 +31200,43 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																																ctor: '_Tuple2',
 																																_0: 'dependencies',
 																																_1: A2(
-																																	_user$project$Json_Schema_Builder$withAdditionalProperties,
+																																	_1602$json_schema$Json_Schema_Builder$withAdditionalProperties,
 																																	A2(
-																																		_user$project$Json_Schema_Builder$withAnyOf,
+																																		_1602$json_schema$Json_Schema_Builder$withAnyOf,
 																																		{
 																																			ctor: '::',
-																																			_0: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
+																																			_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																																			_1: {
 																																				ctor: '::',
-																																				_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/stringArray', _user$project$Json_Schema_Builder$buildSchema),
+																																				_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/stringArray', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																																				_1: {ctor: '[]'}
 																																			}
 																																		},
-																																		_user$project$Json_Schema_Builder$buildSchema),
-																																	A2(_user$project$Json_Schema_Builder$withType, 'object', _user$project$Json_Schema_Builder$buildSchema))
+																																		_1602$json_schema$Json_Schema_Builder$buildSchema),
+																																	A2(_1602$json_schema$Json_Schema_Builder$withType, 'object', _1602$json_schema$Json_Schema_Builder$buildSchema))
 																															},
 																															_1: {
 																																ctor: '::',
 																																_0: {
 																																	ctor: '_Tuple2',
 																																	_0: 'propertyNames',
-																																	_1: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema)
+																																	_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																},
 																																_1: {
 																																	ctor: '::',
-																																	_0: {ctor: '_Tuple2', _0: 'const', _1: _user$project$Json_Schema_Builder$buildSchema},
+																																	_0: {ctor: '_Tuple2', _0: 'const', _1: _1602$json_schema$Json_Schema_Builder$buildSchema},
 																																	_1: {
 																																		ctor: '::',
 																																		_0: {
 																																			ctor: '_Tuple2',
 																																			_0: 'enum',
 																																			_1: A2(
-																																				_user$project$Json_Schema_Builder$withUniqueItems,
+																																				_1602$json_schema$Json_Schema_Builder$withUniqueItems,
 																																				true,
 																																				A2(
-																																					_user$project$Json_Schema_Builder$withMinItems,
+																																					_1602$json_schema$Json_Schema_Builder$withMinItems,
 																																					1,
-																																					A2(_user$project$Json_Schema_Builder$withType, 'array', _user$project$Json_Schema_Builder$buildSchema)))
+																																					A2(_1602$json_schema$Json_Schema_Builder$withType, 'array', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 																																		},
 																																		_1: {
 																																			ctor: '::',
@@ -31183,61 +31244,61 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 																																				ctor: '_Tuple2',
 																																				_0: 'type',
 																																				_1: A2(
-																																					_user$project$Json_Schema_Builder$withAnyOf,
+																																					_1602$json_schema$Json_Schema_Builder$withAnyOf,
 																																					{
 																																						ctor: '::',
-																																						_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/simpleTypes', _user$project$Json_Schema_Builder$buildSchema),
+																																						_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/simpleTypes', _1602$json_schema$Json_Schema_Builder$buildSchema),
 																																						_1: {
 																																							ctor: '::',
 																																							_0: A2(
-																																								_user$project$Json_Schema_Builder$withUniqueItems,
+																																								_1602$json_schema$Json_Schema_Builder$withUniqueItems,
 																																								true,
 																																								A2(
-																																									_user$project$Json_Schema_Builder$withMinItems,
+																																									_1602$json_schema$Json_Schema_Builder$withMinItems,
 																																									1,
 																																									A2(
-																																										_user$project$Json_Schema_Builder$withItem,
-																																										A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/simpleTypes', _user$project$Json_Schema_Builder$buildSchema),
-																																										A2(_user$project$Json_Schema_Builder$withType, 'array', _user$project$Json_Schema_Builder$buildSchema)))),
+																																										_1602$json_schema$Json_Schema_Builder$withItem,
+																																										A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/simpleTypes', _1602$json_schema$Json_Schema_Builder$buildSchema),
+																																										A2(_1602$json_schema$Json_Schema_Builder$withType, 'array', _1602$json_schema$Json_Schema_Builder$buildSchema)))),
 																																							_1: {ctor: '[]'}
 																																						}
 																																					},
-																																					_user$project$Json_Schema_Builder$buildSchema)
+																																					_1602$json_schema$Json_Schema_Builder$buildSchema)
 																																			},
 																																			_1: {
 																																				ctor: '::',
 																																				_0: {
 																																					ctor: '_Tuple2',
 																																					_0: 'format',
-																																					_1: A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema)
+																																					_1: A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																				},
 																																				_1: {
 																																					ctor: '::',
 																																					_0: {
 																																						ctor: '_Tuple2',
 																																						_0: 'allOf',
-																																						_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _user$project$Json_Schema_Builder$buildSchema)
+																																						_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																					},
 																																					_1: {
 																																						ctor: '::',
 																																						_0: {
 																																							ctor: '_Tuple2',
 																																							_0: 'anyOf',
-																																							_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _user$project$Json_Schema_Builder$buildSchema)
+																																							_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																						},
 																																						_1: {
 																																							ctor: '::',
 																																							_0: {
 																																								ctor: '_Tuple2',
 																																								_0: 'oneOf',
-																																								_1: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _user$project$Json_Schema_Builder$buildSchema)
+																																								_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/schemaArray', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																							},
 																																							_1: {
 																																								ctor: '::',
 																																								_0: {
 																																									ctor: '_Tuple2',
 																																									_0: 'not',
-																																									_1: A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema)
+																																									_1: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema)
 																																								},
 																																								_1: {ctor: '[]'}
 																																							}
@@ -31278,19 +31339,19 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 				}
 			},
 			A2(
-				_user$project$Json_Schema_Builder$withDefinitions,
+				_1602$json_schema$Json_Schema_Builder$withDefinitions,
 				{
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
 						_0: 'schemaArray',
 						_1: A2(
-							_user$project$Json_Schema_Builder$withMinItems,
+							_1602$json_schema$Json_Schema_Builder$withMinItems,
 							1,
 							A2(
-								_user$project$Json_Schema_Builder$withItem,
-								A2(_user$project$Json_Schema_Builder$withRef, '#', _user$project$Json_Schema_Builder$buildSchema),
-								A2(_user$project$Json_Schema_Builder$withType, 'array', _user$project$Json_Schema_Builder$buildSchema)))
+								_1602$json_schema$Json_Schema_Builder$withItem,
+								A2(_1602$json_schema$Json_Schema_Builder$withRef, '#', _1602$json_schema$Json_Schema_Builder$buildSchema),
+								A2(_1602$json_schema$Json_Schema_Builder$withType, 'array', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 					},
 					_1: {
 						ctor: '::',
@@ -31298,9 +31359,9 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 							ctor: '_Tuple2',
 							_0: 'nonNegativeInteger',
 							_1: A2(
-								_user$project$Json_Schema_Builder$withMinimum,
+								_1602$json_schema$Json_Schema_Builder$withMinimum,
 								0,
-								A2(_user$project$Json_Schema_Builder$withType, 'integer', _user$project$Json_Schema_Builder$buildSchema))
+								A2(_1602$json_schema$Json_Schema_Builder$withType, 'integer', _1602$json_schema$Json_Schema_Builder$buildSchema))
 						},
 						_1: {
 							ctor: '::',
@@ -31308,20 +31369,20 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 								ctor: '_Tuple2',
 								_0: 'nonNegativeIntegerDefault0',
 								_1: A2(
-									_user$project$Json_Schema_Builder$withAllOf,
+									_1602$json_schema$Json_Schema_Builder$withAllOf,
 									{
 										ctor: '::',
-										_0: A2(_user$project$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _user$project$Json_Schema_Builder$buildSchema),
+										_0: A2(_1602$json_schema$Json_Schema_Builder$withRef, '#/definitions/nonNegativeInteger', _1602$json_schema$Json_Schema_Builder$buildSchema),
 										_1: {
 											ctor: '::',
 											_0: A2(
-												_user$project$Json_Schema_Builder$withDefault,
+												_1602$json_schema$Json_Schema_Builder$withDefault,
 												_elm_lang$core$Json_Encode$int(0),
-												_user$project$Json_Schema_Builder$buildSchema),
+												_1602$json_schema$Json_Schema_Builder$buildSchema),
 											_1: {ctor: '[]'}
 										}
 									},
-									_user$project$Json_Schema_Builder$buildSchema)
+									_1602$json_schema$Json_Schema_Builder$buildSchema)
 							},
 							_1: {
 								ctor: '::',
@@ -31329,7 +31390,7 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 									ctor: '_Tuple2',
 									_0: 'simpleTypes',
 									_1: A2(
-										_user$project$Json_Schema_Builder$withEnum,
+										_1602$json_schema$Json_Schema_Builder$withEnum,
 										A2(
 											_elm_lang$core$List$map,
 											_elm_lang$core$Json_Encode$string,
@@ -31362,7 +31423,7 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 													}
 												}
 											}),
-										_user$project$Json_Schema_Builder$buildSchema)
+										_1602$json_schema$Json_Schema_Builder$buildSchema)
 								},
 								_1: {
 									ctor: '::',
@@ -31370,13 +31431,13 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 										ctor: '_Tuple2',
 										_0: 'stringArray',
 										_1: A2(
-											_user$project$Json_Schema_Builder$withItem,
-											A2(_user$project$Json_Schema_Builder$withType, 'string', _user$project$Json_Schema_Builder$buildSchema),
+											_1602$json_schema$Json_Schema_Builder$withItem,
+											A2(_1602$json_schema$Json_Schema_Builder$withType, 'string', _1602$json_schema$Json_Schema_Builder$buildSchema),
 											A2(
-												_user$project$Json_Schema_Builder$withDefault,
+												_1602$json_schema$Json_Schema_Builder$withDefault,
 												_elm_lang$core$Json_Encode$list(
 													{ctor: '[]'}),
-												A2(_user$project$Json_Schema_Builder$withType, 'array', _user$project$Json_Schema_Builder$buildSchema)))
+												A2(_1602$json_schema$Json_Schema_Builder$withType, 'array', _1602$json_schema$Json_Schema_Builder$buildSchema)))
 									},
 									_1: {ctor: '[]'}
 								}
@@ -31385,14 +31446,14 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 					}
 				},
 				A2(
-					_user$project$Json_Schema_Builder$withDefault,
+					_1602$json_schema$Json_Schema_Builder$withDefault,
 					_elm_lang$core$Json_Encode$object(
 						{ctor: '[]'}),
 					A2(
-						_user$project$Json_Schema_Builder$withTitle,
+						_1602$json_schema$Json_Schema_Builder$withTitle,
 						'Core schema meta-schema',
 						A2(
-							_user$project$Json_Schema_Builder$withUnionType,
+							_1602$json_schema$Json_Schema_Builder$withUnionType,
 							{
 								ctor: '::',
 								_0: 'boolean',
@@ -31402,9 +31463,9 @@ var _user$project$SchemaExamples$coreSchemaDraft6 = A2(
 									_1: {ctor: '[]'}
 								}
 							},
-							_user$project$Json_Schema_Builder$buildSchema)))))));
+							_1602$json_schema$Json_Schema_Builder$buildSchema)))))));
 
-var _user$project$JsonEditorApp$settings = _user$project$Json_Schema_Random$defaultSettings;
+var _user$project$JsonEditorApp$settings = _1602$json_schema$Json_Schema_Random$defaultSettings;
 var _user$project$JsonEditorApp$editJson = _elm_lang$core$Native_Platform.incomingPort('editJson', _elm_lang$core$Json_Decode$value);
 var _user$project$JsonEditorApp$dragOver = _elm_lang$core$Native_Platform.incomingPort('dragOver', _elm_lang$core$Json_Decode$bool);
 var _user$project$JsonEditorApp$download = _elm_lang$core$Native_Platform.outgoingPort(
@@ -31446,7 +31507,7 @@ var _user$project$JsonEditorApp$update = F2(
 				var _p1 = A2(
 					_elm_lang$core$Random$step,
 					A2(
-						_user$project$Json_Schema_Random$value,
+						_1602$json_schema$Json_Schema_Random$value,
 						_elm_lang$core$Native_Utils.update(
 							_user$project$JsonEditorApp$settings,
 							{defaultListLengthLimit: 10}),
@@ -31480,14 +31541,14 @@ var _user$project$JsonEditorApp$update = F2(
 									_1: {ctor: '[]'}
 								});
 						case 'OnInput':
-							var _p5 = _user$project$Json_Schema$fromValue(
+							var _p5 = _1602$json_schema$Json_Schema$fromValue(
 								_1602$json_value$JsonValue$encode(ji.jsonValue));
 							if (_p5.ctor === 'Ok') {
 								var _p7 = _p5._0;
 								var _p6 = A2(
 									_elm_lang$core$Random$step,
 									A2(
-										_user$project$Json_Schema_Random$value,
+										_1602$json_schema$Json_Schema_Random$value,
 										_elm_lang$core$Native_Utils.update(
 											_user$project$JsonEditorApp$settings,
 											{defaultListLengthLimit: 10}),
@@ -31548,7 +31609,7 @@ var _user$project$JsonEditorApp$init = F2(
 				A2(
 					_user$project$JsonInput$init,
 					schema,
-					_user$project$Json_Schema_Definitions$encode(_user$project$SchemaExamples$bookingSchema)),
+					_1602$json_schema$Json_Schema_Definitions$encode(_user$project$SchemaExamples$bookingSchema)),
 				_elm_lang$core$Random$initialSeed(0),
 				_user$project$SchemaExamples$bookingSchema,
 				_elm_lang$core$Json_Encode$null),
