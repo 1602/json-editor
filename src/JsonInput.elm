@@ -91,6 +91,7 @@ type alias View =
 
 type alias Model =
     { schema : Schema
+    , uri : String
     , jsonValue : JsonValue
     , editableJsonValue : EditableJsonValue
     , error : Maybe String
@@ -123,8 +124,8 @@ type
     | SetPropertyName String
 
 
-init : Schema -> Value -> Model
-init schema val =
+init : Schema -> String -> Value -> Model
+init schema uri val =
     let
         jsonValue =
             val
@@ -136,7 +137,10 @@ init schema val =
                 |> EditableJsonValue.makeEditableJsonValue
     in
         Model
+            -- schema
             schema
+            -- uri
+            uri
             -- jsonValue
             jsonValue
             -- editableJsonValue
@@ -153,15 +157,15 @@ init schema val =
             ( "", 0 )
 
 
-makeValidSchema : JsonValue -> Schema -> Result (List Error) Schema
-makeValidSchema jsonValue schema =
+makeValidSchema : JsonValue -> Schema -> String -> Result (List Error) Schema
+makeValidSchema jsonValue schema uri =
     let
         val =
             jsonValue
                 |> JsonValue.encode
     in
-        schema
-            |> JS.validateValue val
+        uri
+            |> JS.validateAt val schema
             |> Result.andThen (Decode.decodeValue Schema.decoder >> (Result.mapError (\_ -> [])))
 
 
@@ -282,14 +286,14 @@ updateValue model path newStuff =
         addErrors =
             List.foldl
                 (\err ->
-                    Dict.update err.jsonPath
+                    Dict.update (err.jsonPointer.path)
                         (\x ->
                             case x of
                                 Just list ->
-                                    (stringifyError err.error) :: list |> Just
+                                    (stringifyError err.details) :: list |> Just
 
                                 Nothing ->
-                                    [ err.error |> stringifyError ] |> Just
+                                    [ err.details |> stringifyError ] |> Just
                         )
                 )
                 Dict.empty
@@ -318,7 +322,7 @@ updateValue model path newStuff =
                             vv =
                                 EditableJsonValue.makeJsonValue v
                         in
-                            case makeValidSchema vv model.schema of
+                            case makeValidSchema vv model.schema model.uri of
                                 Ok _ ->
                                     ( { model
                                         | editableJsonValue = v
@@ -352,19 +356,19 @@ deletePath model isChecked path =
                 addErrors =
                     List.foldl
                         (\err ->
-                            Dict.update err.jsonPath
+                            Dict.update err.jsonPointer.path
                                 (\x ->
                                     case x of
                                         Just list ->
-                                            (toString err.error) :: list |> Just
+                                            (toString err.details) :: list |> Just
 
                                         Nothing ->
-                                            [ err.error |> toString ] |> Just
+                                            [ err.details |> toString ] |> Just
                                 )
                         )
                         Dict.empty
             in
-                case makeValidSchema jsonValue model.schema of
+                case makeValidSchema jsonValue model.schema model.uri of
                     Ok _ ->
                         { model
                             | editableJsonValue = val

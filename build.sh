@@ -30,7 +30,8 @@ gzip -c $DEST/elm.js > $DEST/elm.js.gz
 echo "Compressed size:"
 wc -c $DEST/elm.js.gz
 
-rm dist/elm.readable.js
+# rm dist/elm.readable.js
+
 rm dist/elm.js.gz
 
 cp index.html dist/index.html

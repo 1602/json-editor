@@ -77,7 +77,7 @@ init v location =
             -- dragOver
             False
             -- jsonInput
-            (JsonInput.init schema (bookingSchema |> Json.Schema.Definitions.encode))
+            (JsonInput.init schema "#" (bookingSchema |> Json.Schema.Definitions.encode))
             -- seed
             (Random.initialSeed 0)
             -- schema
@@ -94,7 +94,7 @@ update msg model =
             model ! []
 
         EditJson s ->
-            { model | jsonInput = JsonInput.init coreSchemaDraft6 s } ! []
+            { model | jsonInput = JsonInput.init coreSchemaDraft6 "#" s } ! []
 
         DragOver isOver ->
             { model | dragOver = isOver } ! []
