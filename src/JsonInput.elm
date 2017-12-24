@@ -552,7 +552,7 @@ view id model =
             , width <| fill 1
             ]
         <|
-            form
+            editor
                 id
                 model.valueUpdateErrors
                 model.editPropertyName
@@ -562,8 +562,8 @@ view id model =
                 []
 
 
-form : String -> Dict (List String) (List String) -> ( String, Int ) -> String -> String -> EditableJsonValue -> List String -> View
-form id valueUpdateErrors editPropertyName editPath editValue val path =
+editor : String -> Dict (List String) (List String) -> ( String, Int ) -> String -> String -> EditableJsonValue -> List String -> View
+editor id valueUpdateErrors editPropertyName editPath editValue val path =
     let
         ( editPropPath, editIndex ) =
             editPropertyName
